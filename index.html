@@ -31,6 +31,7 @@
         <div id="song-meta">
           <span id="difficulty-badge">–</span>
           <span id="bpm"></span>
+          <span id="practice-badge" class="hidden">PRACTICE</span>
         </div>
       </div>
     </div>
@@ -106,6 +107,12 @@
       <div id="bl-history-list"></div>
     </div>
 
+    <!-- Map Leaderboard -->
+    <div id="leaderboard-panel" class="hidden">
+      <div id="lb-title">Top Scores</div>
+      <div id="lb-list"></div>
+    </div>
+
   </div>
 
   <!-- Menu state overlay (player banner bottom-left) -->
@@ -157,6 +164,38 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Result screen (shown briefly after map ends) -->
+  <div id="result-screen" class="hidden">
+    <div id="result-verdict">PASS</div>
+    <div id="result-song-row">
+      <img id="result-cover" src="" alt="">
+      <div id="result-song-text">
+        <div id="result-song-name">–</div>
+        <div id="result-song-artist"></div>
+        <span id="result-diff-badge"></span>
+      </div>
+    </div>
+    <div id="result-accuracy">100.00%</div>
+    <div id="result-grid">
+      <div class="rg-item">
+        <span class="rg-value" id="result-score">0</span>
+        <span class="rg-label">Score</span>
+      </div>
+      <div class="rg-item">
+        <span class="rg-value" id="result-notes">FC</span>
+        <span class="rg-label">Notes</span>
+      </div>
+      <div class="rg-item">
+        <span class="rg-value" id="result-combo">0x</span>
+        <span class="rg-label">Best Combo</span>
+      </div>
+      <div class="rg-item hidden" id="result-pp-item">
+        <span class="rg-value" id="result-pp">—</span>
+        <span class="rg-label">PP</span>
+      </div>
+    </div>
   </div>
 
   <!-- Dev link (only visible with ?dev=1) -->

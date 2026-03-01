@@ -82,6 +82,10 @@ let sessionMapsPlayed = 0;
 let sessionFCs = 0;
 let sessionBestCombo = 0;
 
+// --- Result screen state ---
+let lastBLScore = null;
+let resultScreenTimer = null;
+
 function updateCareerStatsDisplay() {
   const enabled = Config.get('statsEnabled') !== false;
   setVisible('career-stats', enabled);
@@ -109,6 +113,82 @@ async function flushSession() {
   const totalMisses = (Config.get('totalMisses') || 0) + sessionMisses;
   await Config.save({ totalHits, totalMisses });
   updateCareerStatsDisplay();
+}
+
+// --- Result Screen ---
+
+function dismissResultScreen() {
+  if (resultScreenTimer) {
+    clearTimeout(resultScreenTimer);
+    resultScreenTimer = null;
+  }
+  const screen = el('result-screen');
+  if (!screen) return;
+  screen.classList.add('hidden');
+  screen.classList.remove('result-hiding', 'result-entering');
+}
+
+function showResultScreen(mapInfo, scoreData, blScore) {
+  if (Config.get('showResultScreen') === false) return false;
+  if (!scoreData || !mapInfo) return false;
+
+  const isFail = scoreData.health <= 0.001;
+  const isFC   = scoreData.missCount === 0 && !isFail;
+
+  const verdictEl = el('result-verdict');
+  if (verdictEl) {
+    verdictEl.textContent = isFail ? 'FAIL' : 'PASS';
+    verdictEl.classList.toggle('result-pass', !isFail);
+    verdictEl.classList.toggle('result-fail',  isFail);
+  }
+
+  const coverEl = el('result-cover');
+  if (coverEl) coverEl.src = mapInfo.coverRaw ? `data:image/png;base64,${mapInfo.coverRaw}` : '';
+  setText('result-song-name',   mapInfo.name   || '');
+  setText('result-song-artist', mapInfo.artist || '');
+
+  const diffEl = el('result-diff-badge');
+  if (diffEl) {
+    const diff = mapInfo.difficulty || '';
+    diffEl.textContent        = diffLabel(diff);
+    diffEl.style.backgroundColor = DIFF_COLORS[diff.toLowerCase()] || '#666';
+  }
+
+  setText('result-accuracy', `${(scoreData.accuracy * 100).toFixed(2)}%`);
+  setText('result-score',    (scoreData.score || 0).toLocaleString());
+
+  const notesEl = el('result-notes');
+  if (notesEl) {
+    notesEl.textContent = isFC ? 'FC' : `${scoreData.missCount} miss`;
+    notesEl.className   = 'rg-value' + (isFC ? ' result-fc' : isFail ? ' result-fail-val' : '');
+  }
+
+  setText('result-combo', `${sessionBestCombo}x`);
+
+  const pp = blScore?.pp;
+  setVisible('result-pp-item', !!pp && pp > 0);
+  if (pp) setText('result-pp', `${pp.toFixed(2)}pp`);
+
+  const screen = el('result-screen');
+  if (!screen) return false;
+
+  screen.classList.remove('hidden', 'result-hiding', 'result-entering');
+  void screen.offsetWidth;
+  screen.classList.add('result-entering');
+  setTimeout(() => screen.classList.remove('result-entering'), 500);
+
+  resultScreenTimer = setTimeout(() => {
+    resultScreenTimer = null;
+    screen.classList.add('result-hiding');
+    setTimeout(() => {
+      screen.classList.add('hidden');
+      screen.classList.remove('result-hiding');
+      setVisible('overlay-menu', true);
+      renderSongHistory();
+    }, 420);
+  }, 4500);
+
+  return true;
 }
 
 // --- Song timer (client-side fallback) ---
@@ -140,6 +220,33 @@ function formatTime(seconds) {
   const s = Math.floor(seconds);
   const m = Math.floor(s / 60);
   return `${m}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function renderLeaderboard(scores) {
+  const list = el('lb-list');
+  if (!list) return;
+  const show = Config.get('showLeaderboard') === true;
+  if (!show || scores.length === 0) {
+    setVisible('leaderboard-panel', false);
+    return;
+  }
+  const playerId = BeatLeader.getPlayerId();
+  list.innerHTML = scores.map(s => {
+    const isMe = playerId && s.playerId === playerId;
+    const accStr = s.accuracy != null ? `${s.accuracy}%` : '—';
+    const ppStr  = s.pp > 0 ? `${s.pp.toFixed(2)}pp` : '—';
+    const nameStr = s.country
+      ? `${s.country.toUpperCase()} ${s.name}`
+      : s.name;
+    return `
+      <div class="lb-row${isMe ? ' lb-me' : ''}">
+        <span class="lb-rank">#${s.rank}</span>
+        <span class="lb-name">${nameStr}</span>
+        <span class="lb-acc">${accStr}</span>
+        <span class="lb-pp">${ppStr}</span>
+      </div>`;
+  }).join('');
+  setVisible('leaderboard-panel', true);
 }
 
 function renderBLHistory(scores) {
@@ -295,7 +402,7 @@ function applyLayoutConfig() {
     'top-right':    'top right',
   };
   const origin = origins[pos] || 'bottom left';
-  for (const id of ['overlay-playing', 'overlay-menu']) {
+  for (const id of ['overlay-playing', 'overlay-menu', 'result-screen']) {
     const node = el(id);
     if (!node) continue;
     node.style.transformOrigin = origin;
@@ -316,8 +423,9 @@ function applyLayoutConfig() {
   setVisible('score-panel',        cfg('showScorePanel'));
   setVisible('health-container',   cfg('showHealthBar'));
   setVisible('session-stats-panel', cfg('showSessionStats'));
-  if (!cfg('showPBDelta')) setVisible('pb-delta', false);
-  if (!cfg('showAccGraph')) setVisible('acc-graph', false);
+  if (!cfg('showPBDelta'))    setVisible('pb-delta',         false);
+  if (!cfg('showAccGraph'))   setVisible('acc-graph',        false);
+  if (Config.get('showLeaderboard') !== true) setVisible('leaderboard-panel', false);
 }
 
 // --- BSPlus event handlers ---
@@ -356,19 +464,26 @@ BSPlusWS.onGameState = async ({ state }) => {
   // state: "Menu" | "Playing"
   const playing = state === 'Playing';
   setVisible('overlay-playing', playing);
-  setVisible('overlay-menu', state === 'Menu' || state === 'ResultsScreen');
   if (playing) {
+    dismissResultScreen();
+    setVisible('overlay-menu', false);
     stopHistoryScroll();
   } else {
     captureAndAddToHistory();
     stopSongTimer();
     await flushSession();
-    renderSongHistory();
+    const shown = showResultScreen(currentMapInfo, lastScoreData, lastBLScore);
+    if (!shown) {
+      setVisible('overlay-menu', true);
+      renderSongHistory();
+    }
+    // else: menu is shown after result screen auto-dismisses
   }
 };
 
 BSPlusWS.onMapInfo = async (info) => {
   captureAndAddToHistory(); // capture previous song before overwriting currentMapInfo
+  dismissResultScreen();
   stopHistoryScroll();
   currentMapInfo = info;
   stopSongTimer();
@@ -405,6 +520,15 @@ BSPlusWS.onMapInfo = async (info) => {
   setText('song-artist', info.artist || '');
   setText('song-mapper', info.mapper || '');
   setText('bpm', info.BPM ? `${Math.round(info.BPM)} BPM` : '');
+
+  // Practice mode indicator
+  const speed = info.speed ?? info.timeMultiplier ?? 1.0;
+  const isPractice = typeof speed === 'number' && Math.abs(speed - 1.0) > 0.001;
+  const practiceEl = el('practice-badge');
+  if (practiceEl) {
+    practiceEl.textContent = isPractice ? `PRACTICE · ${Math.round(speed * 100)}%` : 'PRACTICE';
+    practiceEl.classList.toggle('hidden', !isPractice);
+  }
 
   // Difficulty badge
   const diffEl = el('difficulty-badge');
@@ -444,6 +568,7 @@ BSPlusWS.onMapInfo = async (info) => {
   if (graphCanvas) graphCanvas.getContext('2d').clearRect(0, 0, graphCanvas.width, graphCanvas.height);
 
   // Fetch BeatLeader scores
+  lastBLScore = null;
   const levelId = info.level_id || '';
   const difficulty = info.difficulty || '';
   if (BeatLeader.getPlayerId()) {
@@ -453,6 +578,7 @@ BSPlusWS.onMapInfo = async (info) => {
       pbScore = Math.max(...blScores.map(s => s.modifiedScore || 0)) || null;
     }
     const blScore = blScores[0] || null;
+    lastBLScore = blScore;
     if (blScore) {
       const cfg = key => Config.get(key) !== false;
       const ppGain = (blScore.maxPP && blScore.pp) ? blScore.maxPP - blScore.pp : null;
@@ -478,6 +604,15 @@ BSPlusWS.onMapInfo = async (info) => {
       setVisible('beatleader-panel', true);
     }
     renderBLHistory(blScores);
+
+    // Fetch global leaderboard (only if enabled, to avoid unnecessary requests)
+    if (Config.get('showLeaderboard') === true) {
+      const lbCount = Math.max(1, Math.min(10, parseInt(Config.get('blLeaderboardCount'), 10) || 5));
+      const lbScores = await BeatLeader.fetchLeaderboard(levelId, difficulty, lbCount);
+      renderLeaderboard(lbScores);
+    } else {
+      setVisible('leaderboard-panel', false);
+    }
   }
 };
 
@@ -670,7 +805,9 @@ function buildSettingsPanelHTML() {
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-health"> Health</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-pbdelta"> PB-Delta</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-accgraph"> Acc-Graph</label>
+        <label class="ov-check-label"><input type="checkbox" id="ov-chk-leaderboard"> Leaderboard</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-songhistory"> Song-Verlauf</label>
+        <label class="ov-check-label"><input type="checkbox" id="ov-chk-resultscreen"> Ergebnis-Screen</label>
       </div>
     </div>
 
@@ -716,8 +853,10 @@ function initOverlaySettings() {
     { id: 'ov-chk-bl-maxpp',  key: 'blShowMaxPP'     },
     { id: 'ov-chk-bl-ppgain', key: 'blShowPPGain'    },
     { id: 'ov-chk-pbdelta',     key: 'showPBDelta'     },
-    { id: 'ov-chk-accgraph',   key: 'showAccGraph'    },
-    { id: 'ov-chk-songhistory', key: 'showSongHistory' },
+    { id: 'ov-chk-accgraph',     key: 'showAccGraph'     },
+    { id: 'ov-chk-leaderboard',  key: 'showLeaderboard',  defaultOn: false },
+    { id: 'ov-chk-songhistory',  key: 'showSongHistory'  },
+    { id: 'ov-chk-resultscreen', key: 'showResultScreen' },
   ];
 
   function syncPanelValues() {
@@ -735,9 +874,11 @@ function initOverlaySettings() {
     if (scaleSlider)  scaleSlider.value = Math.round(scale * 100);
     if (scaleDisplay) scaleDisplay.textContent = `${Math.round(scale * 100)}%`;
 
-    OV_CHECKBOXES.forEach(({ id, key }) => {
+    OV_CHECKBOXES.forEach(({ id, key, defaultOn = true }) => {
       const chk = el(id);
-      if (chk) chk.checked = Config.get(key) !== false;
+      if (!chk) return;
+      const val = Config.get(key);
+      chk.checked = val === undefined ? defaultOn : val !== false;
     });
   }
 
@@ -802,7 +943,7 @@ function initOverlaySettings() {
     const disp = el('ov-scale-display');
     if (disp) disp.textContent = `${e.target.value}%`;
     // Apply scale immediately without waiting for network
-    for (const id of ['overlay-playing', 'overlay-menu']) {
+    for (const id of ['overlay-playing', 'overlay-menu', 'result-screen']) {
       const node = el(id);
       if (!node) continue;
       if (val !== 1) {

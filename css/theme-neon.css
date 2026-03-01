@@ -102,3 +102,37 @@ body {
   color: var(--neon-blue);
   text-shadow: 0 0 40px rgba(0, 200, 255, 0.9), 0 0 80px rgba(0, 200, 255, 0.4);
 }
+
+#practice-badge {
+  background: rgba(255, 165, 0, 0.15);
+  color: #ffcc44;
+  border-color: rgba(255, 165, 0, 0.55);
+  text-shadow: 0 0 8px rgba(255, 165, 0, 0.7);
+}
+
+#leaderboard-panel {
+  background: var(--bg-bl);
+  border: 1px solid rgba(180, 74, 255, 0.35);
+  box-shadow: 0 0 12px rgba(180, 74, 255, 0.08);
+}
+
+.lb-row.lb-me .lb-name { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,200,255,0.5); }
+
+#result-screen {
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  box-shadow: 0 0 30px rgba(0, 200, 255, 0.12);
+}
+
+#result-verdict.result-pass {
+  text-shadow: 0 0 24px rgba(76, 175, 80, 0.9);
+}
+
+#result-verdict.result-fail {
+  text-shadow: 0 0 24px rgba(255, 68, 68, 0.9);
+}
+
+#result-accuracy {
+  color: var(--neon-blue);
+  text-shadow: 0 0 18px rgba(0, 200, 255, 0.5);
+}

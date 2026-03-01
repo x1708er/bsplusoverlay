@@ -57,3 +57,13 @@ body {
   color: #fff;
   text-shadow: 0 0 30px rgba(255,255,255,0.4);
 }
+
+#leaderboard-panel {
+  background: var(--bg-bl);
+  border: 1px solid var(--border);
+}
+
+#result-screen {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}

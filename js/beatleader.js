@@ -153,11 +153,46 @@ const BeatLeader = (() => {
     return map[diff.toLowerCase()] || diff.toLowerCase();
   }
 
+  /**
+   * Fetch the global leaderboard for a specific map + difficulty.
+   * @param {string} levelId - BSPlus level_id (e.g. "custom_level_ABCD1234...")
+   * @param {string} difficulty - difficulty string from BSPlus
+   * @param {number} count - number of top scores to fetch (default 5)
+   * @returns {object[]}
+   */
+  async function fetchLeaderboard(levelId, difficulty, count = 5) {
+    if (!levelId || !BASE) return [];
+    const hashMatch = levelId.match(/custom_level_([0-9A-Fa-f]+)/i);
+    const hash = hashMatch ? hashMatch[1].toLowerCase() : null;
+    if (!hash) return [];
+
+    const blDiff = toBLDifficulty(difficulty);
+    const url = `${BASE}/leaderboard/hash/${hash}?difficulty=${encodeURIComponent(blDiff)}&page=1&count=${count}`;
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      const scores = data.scores || [];
+      return scores.map(s => ({
+        rank:     s.rank,
+        name:     s.player?.name    || '?',
+        country:  s.player?.country || '',
+        accuracy: s.accuracy != null ? (s.accuracy * 100).toFixed(2) : null,
+        pp:       s.pp || 0,
+        fc:       !!(s.fullCombo),
+      }));
+    } catch (e) {
+      console.error('[BL] fetchLeaderboard error:', e);
+      return [];
+    }
+  }
+
   return {
     setPlayerId,
     getPlayerId,
     fetchPlayerInfo,
     fetchMapScores,
     fetchScoreForMap,
+    fetchLeaderboard,
   };
 })();

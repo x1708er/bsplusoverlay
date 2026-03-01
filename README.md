@@ -125,10 +125,10 @@ This project is actively being developed. The roadmap is organized by priority a
 - [ ] **Session statistics widget** — total PP earned, maps played, average accuracy, combo streaks for the current session
 - [x] **Accuracy graph** — live line chart showing accuracy trend over the course of the current map
 - [x] **Song history panel** — scrollable list of last N played maps with scores and accuracy
-- [ ] **Fail / Pass screen** — animated end-of-map result screen with score breakdown
-- [ ] **Map leaderboard widget** — show top scores for the current map pulled from BeatLeader in real time
-- [ ] **Difficulty color coding** — map difficulty badge styled with BeatLeader's own color scheme
-- [ ] **Practice mode indicator** — clearly flag when a map is played in practice mode so stats aren't misleading on stream
+- [x] **Fail / Pass screen** — animated end-of-map result screen with score breakdown
+- [x] **Map leaderboard widget** — show top scores for the current map pulled from BeatLeader in real time
+- [x] **Difficulty color coding** — map difficulty badge styled with BeatLeader's own color scheme
+- [x] **Practice mode indicator** — clearly flag when a map is played in practice mode so stats aren't misleading on stream
 
 ### 🔗 Integrations
 
