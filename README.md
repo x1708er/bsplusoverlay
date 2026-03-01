@@ -1,5 +1,5 @@
 # bsplusoverlay
-Streamoverlay for BS+ mod and beatleader api.
+Completely local Streamoverlay for BS+ mod and beatleader api.
 Work in Progress
 # Prerequisites
 Python (Tested on Arch/cachyos python 3.14.3)
