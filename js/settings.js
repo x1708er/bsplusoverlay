@@ -28,6 +28,7 @@ function loadSettings() {
   document.getElementById('chk-show-score').checked    = Config.get('showScorePanel') !== false;
   document.getElementById('chk-show-health').checked   = Config.get('showHealthBar')  !== false;
   document.getElementById('chk-show-pbdelta').checked  = Config.get('showPBDelta')    !== false;
+  document.getElementById('chk-show-accgraph').checked = Config.get('showAccGraph')   !== false;
   selectTheme(Config.get('theme'), false);
   updateStatsDisplay();
 }
@@ -78,11 +79,12 @@ function saveAll() {
   const showScorePanel = document.getElementById('chk-show-score').checked;
   const showHealthBar  = document.getElementById('chk-show-health').checked;
   const showPBDelta    = document.getElementById('chk-show-pbdelta').checked;
+  const showAccGraph   = document.getElementById('chk-show-accgraph').checked;
 
   Config.save({
     wsHost, wsPort, theme, statsEnabled,
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain, blShowHistory, blHistoryCount,
-    overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta,
+    overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph,
   }).then(() => showStatus('Einstellungen gespeichert!'));
 }
 

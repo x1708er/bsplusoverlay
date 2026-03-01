@@ -123,7 +123,7 @@ This project is actively being developed. The roadmap is organized by priority a
 ### 📊 Mid-term (Richer Data)
 
 - [ ] **Session statistics widget** — total PP earned, maps played, average accuracy, combo streaks for the current session
-- [ ] **Accuracy graph** — live line chart showing accuracy trend over the course of the current map
+- [x] **Accuracy graph** — live line chart showing accuracy trend over the course of the current map
 - [ ] **Song history panel** — scrollable list of last N played maps with scores and accuracy
 - [ ] **Fail / Pass screen** — animated end-of-map result screen with score breakdown
 - [ ] **Map leaderboard widget** — show top scores for the current map pulled from BeatLeader in real time

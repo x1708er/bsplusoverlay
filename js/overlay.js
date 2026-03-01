@@ -61,6 +61,7 @@ let songStartTime = 0;
 let songElapsed = 0;
 let isPaused = false;
 let pbScore = null;
+let accHistory = []; // { t, acc } — sampled every ≥0.5 s
 
 // --- Career counter state ---
 let sessionHits = 0;
@@ -179,6 +180,7 @@ function applyLayoutConfig() {
   setVisible('score-panel',        cfg('showScorePanel'));
   setVisible('health-container',   cfg('showHealthBar'));
   if (!cfg('showPBDelta')) setVisible('pb-delta', false);
+  if (!cfg('showAccGraph')) setVisible('acc-graph', false);
 }
 
 // --- BSPlus event handlers ---
@@ -292,6 +294,12 @@ BSPlusWS.onMapInfo = async (info) => {
   const pbEl = el('pb-delta');
   if (pbEl) pbEl.classList.remove('pb-ahead', 'pb-behind');
 
+  // Reset accuracy graph
+  accHistory = [];
+  setVisible('acc-graph', false);
+  const graphCanvas = el('acc-graph');
+  if (graphCanvas) graphCanvas.getContext('2d').clearRect(0, 0, graphCanvas.width, graphCanvas.height);
+
   // Fetch BeatLeader scores
   const levelId = info.level_id || '';
   const difficulty = info.difficulty || '';
@@ -390,6 +398,18 @@ BSPlusWS.onScore = (score) => {
       setVisible('pb-delta', true);
     }
   }
+
+  // Accuracy graph — sample every ≥0.5 s
+  if (Config.get('showAccGraph') !== false && time > 0) {
+    const lastPt = accHistory[accHistory.length - 1];
+    if (!lastPt || time - lastPt.t >= 0.5) {
+      accHistory.push({ t: time, acc: accuracy * 100 });
+    }
+    if (accHistory.length >= 2) {
+      setVisible('acc-graph', true);
+      drawAccGraph();
+    }
+  }
 };
 
 BSPlusWS.onPause = () => {
@@ -402,6 +422,58 @@ BSPlusWS.onResume = () => {
   songStartTime = Date.now() - songElapsed * 1000;
   setVisible('pause-indicator', false);
 };
+
+// --- Accuracy Graph ---
+function drawAccGraph() {
+  const canvas = el('acc-graph');
+  if (!canvas || accHistory.length < 2) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const duration = (currentMapInfo?.duration || 0) / 1000;
+  const timeSpan = duration > 0 ? duration : accHistory[accHistory.length - 1].t || 1;
+
+  const accValues = accHistory.map(p => p.acc);
+  const minAcc = Math.max(0, Math.min(...accValues) - 1);
+  const accRange = (100 - minAcc) || 1;
+
+  const toX = t => (t / timeSpan) * W;
+  const toY = acc => H - 1 - ((acc - minAcc) / accRange) * (H - 2);
+
+  const first = accHistory[0];
+  const last  = accHistory[accHistory.length - 1];
+
+  // Fill under line
+  ctx.beginPath();
+  ctx.moveTo(toX(first.t), toY(first.acc));
+  for (let i = 1; i < accHistory.length; i++) {
+    ctx.lineTo(toX(accHistory[i].t), toY(accHistory[i].acc));
+  }
+  ctx.lineTo(toX(last.t), H);
+  ctx.lineTo(toX(first.t), H);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(96, 176, 255, 0.15)';
+  ctx.fill();
+
+  // Stroke line
+  ctx.beginPath();
+  ctx.moveTo(toX(first.t), toY(first.acc));
+  for (let i = 1; i < accHistory.length; i++) {
+    ctx.lineTo(toX(accHistory[i].t), toY(accHistory[i].acc));
+  }
+  ctx.strokeStyle = 'rgba(96, 176, 255, 0.9)';
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  // Current value dot
+  ctx.beginPath();
+  ctx.arc(toX(last.t), toY(last.acc), 2.5, 0, Math.PI * 2);
+  ctx.fillStyle = '#60b0ff';
+  ctx.fill();
+}
 
 // --- In-Overlay Settings Panel ---
 
@@ -448,6 +520,7 @@ function buildSettingsPanelHTML() {
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-score"> Score</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-health"> Health</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-pbdelta"> PB-Delta</label>
+        <label class="ov-check-label"><input type="checkbox" id="ov-chk-accgraph"> Acc-Graph</label>
       </div>
     </div>
 
@@ -493,6 +566,7 @@ function initOverlaySettings() {
     { id: 'ov-chk-bl-maxpp',  key: 'blShowMaxPP'     },
     { id: 'ov-chk-bl-ppgain', key: 'blShowPPGain'    },
     { id: 'ov-chk-pbdelta',   key: 'showPBDelta'     },
+    { id: 'ov-chk-accgraph',  key: 'showAccGraph'    },
   ];
 
   function syncPanelValues() {

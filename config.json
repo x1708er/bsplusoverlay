@@ -3,7 +3,7 @@
   "wsHost": "localhost",
   "wsPort": 2947,
   "totalHits": 1128,
-  "totalMisses": 4105,
+  "totalMisses": 4135,
   "statsEnabled": true,
   "blShowPP": true,
   "blShowAcc": true,
@@ -20,5 +20,7 @@
   "showSongCard": true,
   "showProgress": true,
   "showScorePanel": true,
-  "showHealthBar": true
+  "showHealthBar": true,
+  "showPBDelta": true,
+  "showAccGraph": true
 }

@@ -308,6 +308,16 @@ body.pos-top-right #overlay-menu {
 }
 
 /* =====================
+   Accuracy Graph
+   ===================== */
+
+#acc-graph {
+  display: block;
+  width: 100%;
+  border-radius: 6px;
+}
+
+/* =====================
    BeatLeader Panel
    ===================== */
 

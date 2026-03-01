@@ -12,7 +12,7 @@ const Config = (() => {
     blShowMaxPP: false, blShowPPGain: true,
     blShowHistory: true, blHistoryCount: 5,
     overlayPosition: 'bottom-left', overlayScale: 1,
-    showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true, showPBDelta: true,
+    showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true, showPBDelta: true, showAccGraph: true,
   };
 
   let values = { ...DEFAULTS };
