@@ -390,6 +390,21 @@
       margin-top: 10px;
     }
 
+    /* --- Song history --- */
+    .sh-count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: rgba(220,220,240,0.8);
+      flex-wrap: wrap;
+    }
+
+    .sh-count-row input[type="number"] {
+      width: 70px;
+    }
+
     /* --- BeatLeader history count --- */
     .bl-count-row {
       display: flex;
@@ -613,6 +628,32 @@
         <label for="input-bl-history-count">Anzahl Einträge</label>
         <input type="number" id="input-bl-history-count" min="1" max="10" value="5">
       </div>
+    </div>
+  </div>
+
+  <!-- Song History -->
+  <div class="section">
+    <div class="section-title">Song-Verlauf</div>
+    <p style="font-size:0.8rem;color:rgba(200,200,220,0.55);margin-bottom:12px;line-height:1.5">
+      Zeigt die zuletzt gespielten Songs im Hauptmenü an, mit automatischem Scrollen.
+    </p>
+    <div class="bl-field-grid" style="margin-bottom:12px">
+      <label class="toggle-label">
+        <input type="checkbox" id="chk-song-history"> Verlauf anzeigen
+      </label>
+      <label class="toggle-label">
+        <input type="checkbox" id="chk-song-history-scroll"> Auto-Scroll
+      </label>
+    </div>
+    <div class="sh-count-row">
+      <label for="input-song-history-count">Einträge (max.)</label>
+      <input type="number" id="input-song-history-count" min="1" max="20" value="8">
+      <label for="input-song-history-visible" style="margin-left:6px">Sichtbare Zeilen</label>
+      <input type="number" id="input-song-history-visible" min="1" max="8" value="3">
+    </div>
+    <div class="sh-count-row" style="margin-top:8px">
+      <label for="input-song-history-speed">Scroll-Geschwindigkeit (ms pro Zeile)</label>
+      <input type="number" id="input-song-history-speed" min="500" max="10000" step="500" value="3000">
     </div>
   </div>
 

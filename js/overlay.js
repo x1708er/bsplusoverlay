@@ -63,6 +63,13 @@ let isPaused = false;
 let pbScore = null;
 let accHistory = []; // { t, acc } — sampled every ≥0.5 s
 
+// --- Song history state ---
+let lastScoreData = null;   // { score, accuracy, missCount, health } — last received score event
+let songWasPlayed = false;  // true once at least one score event arrived for current song
+let songHistory = [];       // [{ name, artist, difficulty, coverRaw, score, accuracy, missCount, health, ts }], newest first
+let shScrollInterval = null;
+let shScrollStep = 0;
+
 // --- Career counter state ---
 let sessionHits = 0;
 let sessionMisses = 0;
@@ -140,6 +147,117 @@ function renderBLHistory(scores) {
     </div>
   `).join('');
   setVisible('bl-history-panel', true);
+}
+
+// --- Song History ---
+
+function captureAndAddToHistory() {
+  if (!currentMapInfo || !songWasPlayed || !lastScoreData) return;
+  const maxCount = Math.max(1, Math.min(20, parseInt(Config.get('songHistoryCount'), 10) || 8));
+  songHistory.unshift({
+    name:       currentMapInfo.name       || '',
+    artist:     currentMapInfo.artist     || '',
+    difficulty: currentMapInfo.difficulty || '',
+    coverRaw:   currentMapInfo.coverRaw   || '',
+    score:      lastScoreData.score,
+    accuracy:   lastScoreData.accuracy,
+    missCount:  lastScoreData.missCount,
+    health:     lastScoreData.health,
+    ts:         Date.now(),
+  });
+  while (songHistory.length > maxCount) songHistory.pop();
+  songWasPlayed = false;
+  lastScoreData = null;
+}
+
+function stopHistoryScroll() {
+  if (shScrollInterval) {
+    clearInterval(shScrollInterval);
+    shScrollInterval = null;
+  }
+}
+
+function startHistoryScroll(rowHeight, totalRows, visibleRows) {
+  stopHistoryScroll();
+  const speed = Math.max(500, parseInt(Config.get('songHistoryScrollSpeed'), 10) || 3000);
+  const maxStep = totalRows - visibleRows;
+  const list = el('song-history-list');
+  if (!list || maxStep <= 0) return;
+
+  shScrollStep = 0;
+
+  shScrollInterval = setInterval(() => {
+    shScrollStep++;
+    if (shScrollStep > maxStep) {
+      // instant jump back to top, then re-enable smooth transition
+      list.style.transition = 'none';
+      list.style.transform = 'translateY(0)';
+      shScrollStep = 0;
+      void list.offsetWidth; // force reflow
+      list.style.transition = 'transform 0.7s ease-in-out';
+    } else {
+      list.style.transition = 'transform 0.7s ease-in-out';
+      list.style.transform = `translateY(-${shScrollStep * rowHeight}px)`;
+    }
+  }, speed);
+}
+
+function renderSongHistory() {
+  const show = Config.get('showSongHistory') !== false;
+  const list = el('song-history-list');
+  if (!list) return;
+
+  stopHistoryScroll();
+
+  if (!show || songHistory.length === 0) {
+    setVisible('song-history-panel', false);
+    return;
+  }
+
+  const ROW_H = 44; // matches .sh-row height in CSS
+  const visibleRows = Math.max(1, Math.min(8, parseInt(Config.get('songHistoryVisibleRows'), 10) || 3));
+
+  list.innerHTML = songHistory.map(s => {
+    const accStr  = s.accuracy != null ? `${(s.accuracy * 100).toFixed(2)}%` : '—';
+    const isFail  = s.health <= 0.001;
+    const isFC    = s.missCount === 0 && !isFail;
+    const missStr = isFail ? 'FAIL' : (isFC ? 'FC' : `${s.missCount} miss`);
+    const missClass = isFC ? ' sh-fc' : (isFail ? ' sh-fail' : '');
+    const diffColor = DIFF_COLORS[s.difficulty.toLowerCase()] || '#666';
+    const coverSrc  = s.coverRaw ? `data:image/png;base64,${s.coverRaw}` : '';
+    return `
+      <div class="sh-row">
+        ${coverSrc
+          ? `<img class="sh-cover" src="${coverSrc}" alt="">`
+          : '<div class="sh-cover"></div>'}
+        <div class="sh-info">
+          <div class="sh-name">${s.name || '—'}</div>
+          <div class="sh-sub">
+            ${s.artist ? `<span>${s.artist}</span>` : ''}
+            <span class="sh-diff" style="color:${diffColor}">${diffLabel(s.difficulty)}</span>
+          </div>
+        </div>
+        <div class="sh-stats">
+          <span class="sh-acc">${accStr}</span>
+          <span class="sh-miss${missClass}">${missStr}</span>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Set viewport height to show exactly visibleRows rows
+  const viewport = el('song-history-viewport');
+  if (viewport) viewport.style.height = `${visibleRows * ROW_H}px`;
+
+  // Reset scroll position
+  list.style.transition = 'none';
+  list.style.transform = 'translateY(0)';
+  shScrollStep = 0;
+
+  setVisible('song-history-panel', true);
+
+  if (songHistory.length > visibleRows && Config.get('songHistoryScroll') !== false) {
+    startHistoryScroll(ROW_H, songHistory.length, visibleRows);
+  }
 }
 
 // --- Layout config ---
@@ -220,13 +338,19 @@ BSPlusWS.onGameState = async ({ state }) => {
   const playing = state === 'Playing';
   setVisible('overlay-playing', playing);
   setVisible('overlay-menu', state === 'Menu' || state === 'ResultsScreen');
-  if (!playing) {
+  if (playing) {
+    stopHistoryScroll();
+  } else {
+    captureAndAddToHistory();
     stopSongTimer();
     await flushSession();
+    renderSongHistory();
   }
 };
 
 BSPlusWS.onMapInfo = async (info) => {
+  captureAndAddToHistory(); // capture previous song before overwriting currentMapInfo
+  stopHistoryScroll();
   currentMapInfo = info;
   stopSongTimer();
   await flushSession();
@@ -345,6 +469,10 @@ BSPlusWS.onScore = (score) => {
   const missCount = score.missCount ?? 0;
   const health = score.currentHealth ?? 1;
   const time = score.time ?? 0;
+
+  // Track for song history capture
+  lastScoreData = { score: rawScore, accuracy, missCount, health };
+  songWasPlayed = true;
 
   // Accumulate per-session hit/miss counters
   const deltaMiss = Math.max(0, missCount - prevMissCount);
@@ -521,6 +649,7 @@ function buildSettingsPanelHTML() {
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-health"> Health</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-pbdelta"> PB-Delta</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-accgraph"> Acc-Graph</label>
+        <label class="ov-check-label"><input type="checkbox" id="ov-chk-songhistory"> Song-Verlauf</label>
       </div>
     </div>
 
@@ -565,8 +694,9 @@ function initOverlaySettings() {
     { id: 'ov-chk-bl-date',   key: 'blShowDate'      },
     { id: 'ov-chk-bl-maxpp',  key: 'blShowMaxPP'     },
     { id: 'ov-chk-bl-ppgain', key: 'blShowPPGain'    },
-    { id: 'ov-chk-pbdelta',   key: 'showPBDelta'     },
-    { id: 'ov-chk-accgraph',  key: 'showAccGraph'    },
+    { id: 'ov-chk-pbdelta',     key: 'showPBDelta'     },
+    { id: 'ov-chk-accgraph',   key: 'showAccGraph'    },
+    { id: 'ov-chk-songhistory', key: 'showSongHistory' },
   ];
 
   function syncPanelValues() {

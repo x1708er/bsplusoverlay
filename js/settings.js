@@ -18,6 +18,11 @@ function loadSettings() {
   document.getElementById('chk-bl-ppgain').checked = Config.get('blShowPPGain') !== false;
   document.getElementById('chk-bl-history').checked       = Config.get('blShowHistory') !== false;
   document.getElementById('input-bl-history-count').value = Config.get('blHistoryCount') || 5;
+  document.getElementById('chk-song-history').checked            = Config.get('showSongHistory') !== false;
+  document.getElementById('chk-song-history-scroll').checked     = Config.get('songHistoryScroll') !== false;
+  document.getElementById('input-song-history-count').value      = Config.get('songHistoryCount') || 8;
+  document.getElementById('input-song-history-visible').value    = Config.get('songHistoryVisibleRows') || 3;
+  document.getElementById('input-song-history-speed').value      = Config.get('songHistoryScrollSpeed') || 3000;
   // Layout
   selectPosition(Config.get('overlayPosition') || 'bottom-left', false);
   const scalePct = Math.round((parseFloat(Config.get('overlayScale')) || 1) * 100);
@@ -71,6 +76,11 @@ function saveAll() {
   const blShowPPGain  = document.getElementById('chk-bl-ppgain').checked;
   const blShowHistory = document.getElementById('chk-bl-history').checked;
   const blHistoryCount = Math.max(1, Math.min(10, parseInt(document.getElementById('input-bl-history-count').value, 10) || 5));
+  const showSongHistory        = document.getElementById('chk-song-history').checked;
+  const songHistoryScroll      = document.getElementById('chk-song-history-scroll').checked;
+  const songHistoryCount       = Math.max(1, Math.min(20, parseInt(document.getElementById('input-song-history-count').value, 10) || 8));
+  const songHistoryVisibleRows = Math.max(1, Math.min(8,  parseInt(document.getElementById('input-song-history-visible').value, 10) || 3));
+  const songHistoryScrollSpeed = Math.max(500, Math.min(10000, parseInt(document.getElementById('input-song-history-speed').value, 10) || 3000));
   // Layout
   const selectedPos = document.querySelector('.pos-tile.selected');
   const overlayPosition = selectedPos ? selectedPos.dataset.pos : 'bottom-left';
@@ -86,6 +96,7 @@ function saveAll() {
   Config.save({
     wsHost, wsPort, theme, statsEnabled,
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain, blShowHistory, blHistoryCount,
+    showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
     overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph, customCSS,
   }).then(() => showStatus('Einstellungen gespeichert!'));
 }
