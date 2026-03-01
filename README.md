@@ -105,7 +105,7 @@ All data processing happens **entirely on your local machine**:
 | Overlay shows no data | Make sure Beat Saber is running with BS+ active |
 | BeatLeader stats not loading | Check that the Python proxy is running and reachable at `localhost:7273` |
 | Browser source is blank in OBS | Verify the URL is set to `http://localhost:7273/index.html` |
-| `start.sh` not executable | Run `chmod +x start.sh` first |
+| `start.py` won't start | Make sure Python 3.14+ is installed and run `python start.py` |
 | Port 7273 already in use | Stop any conflicting process or change the port in the config |
 
 ---
