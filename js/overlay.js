@@ -687,6 +687,8 @@ function initOverlaySettings() {
 Config.ready.then(() => {
   const link = document.getElementById('theme-css');
   if (link) link.href = `css/theme-${Config.get('theme')}.css`;
+  const customStyle = document.getElementById('custom-css');
+  if (customStyle) customStyle.textContent = Config.get('customCSS') || '';
   applyLayoutConfig();
   updateCareerStatsDisplay();
   initOverlaySettings();

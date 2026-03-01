@@ -404,6 +404,43 @@
       width: 70px;
     }
 
+    /* --- Custom CSS --- */
+    #input-custom-css {
+      width: 100%;
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #c8ffc8;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      font-family: 'Cascadia Code', 'Fira Mono', 'Consolas', monospace;
+      line-height: 1.5;
+      outline: none;
+      resize: vertical;
+      min-height: 140px;
+      transition: border-color 0.2s;
+    }
+
+    #input-custom-css:focus {
+      border-color: rgba(100, 180, 255, 0.5);
+    }
+
+    .css-hint {
+      font-size: 0.72rem;
+      color: rgba(180,180,200,0.45);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .css-hint code {
+      background: rgba(255,255,255,0.07);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-family: monospace;
+      font-size: 0.9em;
+      color: rgba(200,255,200,0.7);
+    }
+
     /* --- CORS warning --- */
     #cors-warning {
       display: none;
@@ -577,6 +614,19 @@
         <input type="number" id="input-bl-history-count" min="1" max="10" value="5">
       </div>
     </div>
+  </div>
+
+  <!-- Custom CSS -->
+  <div class="section">
+    <div class="section-title">Custom CSS</div>
+    <textarea id="input-custom-css" spellcheck="false" placeholder="/* Eigene Styles hier einfügen */
+#score { color: #ff2d78; }
+#accuracy { font-size: 1.2rem; }"></textarea>
+    <p class="css-hint">
+      Styles werden nach dem Theme-CSS injiziert und können alle Overlay-Elemente überschreiben.<br>
+      Selektoren: <code>#score</code>, <code>#accuracy</code>, <code>#song-name</code>, <code>#health-bar</code>, <code>#overlay-playing</code> u.v.m.<br>
+      Änderungen werden aktiv wenn das Overlay neu geladen wird (OBS: Browser Source → Refresh).
+    </p>
   </div>
 
   <!-- Save -->

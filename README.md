@@ -118,7 +118,7 @@ This project is actively being developed. The roadmap is organized by priority a
 
 - [x] **Personal Best comparison** — live delta display against your own PB for the current map
 - [x] **Theme support / preset themes** — light, dark, neon, minimal, and community themes
-- [ ] **Custom CSS injection** — advanced users can paste custom styles directly in the settings UI
+- [x] **Custom CSS injection** — advanced users can paste custom styles directly in the settings UI
 
 ### 📊 Mid-term (Richer Data)
 

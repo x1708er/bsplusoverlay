@@ -13,6 +13,7 @@ const Config = (() => {
     blShowHistory: true, blHistoryCount: 5,
     overlayPosition: 'bottom-left', overlayScale: 1,
     showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true, showPBDelta: true, showAccGraph: true,
+    customCSS: '',
   };
 
   let values = { ...DEFAULTS };
