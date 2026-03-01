@@ -39,17 +39,13 @@ Before getting started, make sure you have the following installed:
 
 ### 1. Start the local proxy server
 
-**Windows:**
-```bat
-start.bat
-```
-
-**macOS & Linux:**
 ```bash
-./start.sh
+python start.py
 ```
 
-This will launch the Python proxy server in the background and open a **settings page** in your default browser where you can configure the overlay to your liking.
+This will launch the Python proxy server and open a **settings page** in your default browser where you can configure the overlay to your liking.
+
+> **Tip:** Run `python start.py --no-browser` to start the server without opening the browser automatically.
 
 ---
 
@@ -77,11 +73,13 @@ In OBS Studio (or similar):
 
 ```
 bsplusoverlay/
-├── start.bat          # Windows launcher
-├── start.sh           # macOS/Linux launcher
-├── proxy/             # Python CORS proxy for BeatLeader API
-└── overlay/           # Frontend overlay (HTML/CSS/JS)
-    └── index.html     # Main overlay page (use this as browser source)
+├── start.py           # Cross-platform launcher (run this)
+├── server.py          # Local HTTP server + BeatLeader proxy
+├── index.html         # Overlay page (use this as OBS browser source)
+├── settings.html      # Settings page
+├── config.json        # Saved settings
+├── css/               # Stylesheets (base + themes)
+└── js/                # JavaScript modules
 ```
 
 ---
@@ -117,7 +115,7 @@ This project is actively being developed. Planned features and improvements:
 - [x] Additional BeatLeader stats (rank, PP gain, leaderboard position)
 - [x] Theme support / preset themes
 - [x] In-overlay settings panel
-- [ ] Improved cross-platform launcher
+- [x] Improved cross-platform launcher
 - [ ] Docker support for easier deployment
 
 ---
