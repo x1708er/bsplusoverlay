@@ -113,10 +113,10 @@ All data processing happens **entirely on your local machine**:
 
 This project is actively being developed. Planned features and improvements:
 
-- [ ] More customizable layout options
-- [ ] Additional BeatLeader stats (rank, PP gain, leaderboard position)
-- [ ] Theme support / preset themes
-- [ ] In-overlay settings panel
+- [x] More customizable layout options
+- [x] Additional BeatLeader stats (rank, PP gain, leaderboard position)
+- [x] Theme support / preset themes
+- [x] In-overlay settings panel
 - [ ] Improved cross-platform launcher
 - [ ] Docker support for easier deployment
 
