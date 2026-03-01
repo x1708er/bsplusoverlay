@@ -15,34 +15,88 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px 60px;
+      padding: 32px 20px 60px;
     }
 
     h1 {
-      font-size: 1.5rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      margin-bottom: 6px;
       color: #fff;
     }
 
     .subtitle {
-      font-size: 0.85rem;
-      color: rgba(200,200,220,0.55);
-      margin-bottom: 36px;
+      font-size: 0.82rem;
+      color: rgba(200,200,220,0.45);
+      margin-top: 4px;
+      margin-bottom: 28px;
     }
 
-    .section {
+    /* --- Tab nav --- */
+    .tab-nav {
       width: 100%;
       max-width: 560px;
+      display: flex;
+      gap: 4px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding-bottom: 0;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: rgba(200,200,220,0.5);
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 14px 9px;
+      cursor: pointer;
+      transition: color 0.18s, border-color 0.18s;
+      border-radius: 0;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn:hover {
+      color: rgba(200,200,220,0.85);
+      background: none;
+      border-color: rgba(255,255,255,0.15);
+    }
+
+    .tab-btn.active {
+      color: #60b0ff;
+      border-color: #60b0ff;
+      background: none;
+    }
+
+    /* --- Tab panes --- */
+    .tab-pane {
+      display: none;
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .tab-pane.active { display: block; }
+
+    /* --- Sections --- */
+    .section {
       margin-bottom: 28px;
     }
 
     .section-title {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       text-transform: uppercase;
       letter-spacing: 0.1em;
-      color: rgba(180,180,200,0.55);
-      margin-bottom: 10px;
+      color: rgba(180,180,200,0.45);
+      margin-bottom: 12px;
+    }
+
+    .section-desc {
+      font-size: 0.8rem;
+      color: rgba(200,200,220,0.5);
+      margin-bottom: 12px;
+      line-height: 1.55;
     }
 
     label {
@@ -86,6 +140,31 @@
       border-color: rgba(255,255,255,0.25);
     }
 
+    .toggle-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      color: rgba(220,220,240,0.8);
+      margin-bottom: 0;
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #60b0ff;
+      flex-shrink: 0;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: #60b0ff;
+      margin-top: 6px;
+      cursor: pointer;
+    }
+
     /* --- Theme tiles --- */
     .theme-tiles {
       display: flex;
@@ -107,9 +186,7 @@
       transform: translateY(-2px);
     }
 
-    .theme-tile.selected {
-      border-color: #60b0ff;
-    }
+    .theme-tile.selected { border-color: #60b0ff; }
 
     .theme-preview {
       height: 80px;
@@ -120,61 +197,17 @@
       gap: 4px;
     }
 
-    /* Minimal preview */
-    .preview-minimal {
-      background: #0f0f14;
-    }
-    .preview-minimal .prev-bar {
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.85);
-      width: 65%;
-    }
-    .preview-minimal .prev-score {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #f0f0f0;
-    }
+    .preview-minimal { background: #0f0f14; }
+    .preview-minimal .prev-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.85); width: 65%; }
+    .preview-minimal .prev-score { font-size: 0.75rem; font-weight: 700; color: #f0f0f0; }
 
-    /* Neon preview */
-    .preview-neon {
-      background: #050514;
-    }
-    .preview-neon .prev-bar {
-      height: 4px;
-      border-radius: 2px;
-      background: linear-gradient(90deg, #00c8ff, #ff2d78);
-      width: 65%;
-      box-shadow: 0 0 6px rgba(0,200,255,0.7);
-    }
-    .preview-neon .prev-score {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #ff2d78;
-      text-shadow: 0 0 8px rgba(255,45,120,0.8);
-    }
+    .preview-neon { background: #050514; }
+    .preview-neon .prev-bar { height: 4px; border-radius: 2px; background: linear-gradient(90deg,#00c8ff,#ff2d78); width: 65%; box-shadow: 0 0 6px rgba(0,200,255,0.7); }
+    .preview-neon .prev-score { font-size: 0.75rem; font-weight: 700; color: #ff2d78; text-shadow: 0 0 8px rgba(255,45,120,0.8); }
 
-    /* Glass preview */
-    .preview-glass {
-      background: linear-gradient(135deg, #1a2a4a 0%, #2d1a4a 100%);
-    }
-    .preview-glass .prev-bar {
-      height: 4px;
-      border-radius: 2px;
-      background: rgba(255,255,255,0.7);
-      width: 65%;
-    }
-    .preview-glass .prev-score {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #fff;
-      background: rgba(255,255,255,0.12);
-      backdrop-filter: blur(4px);
-      padding: 2px 6px;
-      border-radius: 4px;
-      border: 1px solid rgba(255,255,255,0.2);
-      display: inline-block;
-    }
+    .preview-glass { background: linear-gradient(135deg,#1a2a4a 0%,#2d1a4a 100%); }
+    .preview-glass .prev-bar { height: 4px; border-radius: 2px; background: rgba(255,255,255,0.7); width: 65%; }
+    .preview-glass .prev-score { font-size: 0.75rem; font-weight: 700; color: #fff; background: rgba(255,255,255,0.12); backdrop-filter: blur(4px); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); display: inline-block; }
 
     .theme-label {
       text-align: center;
@@ -183,133 +216,9 @@
       color: rgba(200,200,220,0.75);
       background: rgba(255,255,255,0.04);
     }
+    .theme-tile.selected .theme-label { color: #60b0ff; }
 
-    .theme-tile.selected .theme-label {
-      color: #60b0ff;
-    }
-
-    /* --- Save button row --- */
-    .save-row {
-      width: 100%;
-      max-width: 560px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      margin-bottom: 20px;
-    }
-
-    #btn-save {
-      background: rgba(96, 176, 255, 0.18);
-      border-color: rgba(96, 176, 255, 0.4);
-      font-size: 0.95rem;
-      padding: 10px 28px;
-    }
-
-    #btn-save:hover {
-      background: rgba(96, 176, 255, 0.28);
-    }
-
-    #save-status {
-      font-size: 0.82rem;
-      color: #6cdd8a;
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    /* --- Overlay link --- */
-    .overlay-link-row {
-      width: 100%;
-      max-width: 560px;
-    }
-
-    #link-overlay {
-      display: inline-block;
-      color: #60b0ff;
-      font-size: 0.85rem;
-      text-decoration: none;
-      padding: 8px 0;
-    }
-
-    #link-overlay:hover { text-decoration: underline; }
-
-    /* --- WS port --- */
-    input#input-ws-port {
-      width: 120px;
-    }
-
-    /* --- Career Stats --- */
-    .stats-numbers {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 14px;
-    }
-
-    .stats-num-item {
-      flex: 1;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 8px;
-      padding: 10px 12px;
-      text-align: center;
-    }
-
-    .stats-num-value {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .stats-num-label {
-      font-size: 0.68rem;
-      color: rgba(180,180,200,0.55);
-      margin-top: 3px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    .stats-controls {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .toggle-label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      color: rgba(220,220,240,0.8);
-      margin-bottom: 0;
-    }
-
-    input[type="checkbox"] {
-      width: 16px;
-      height: 16px;
-      cursor: pointer;
-      accent-color: #60b0ff;
-    }
-
-    #btn-reset-stats {
-      background: rgba(220, 80, 80, 0.12);
-      border-color: rgba(220, 80, 80, 0.3);
-      color: #f09090;
-    }
-
-    #btn-reset-stats:hover {
-      background: rgba(220, 80, 80, 0.22);
-      border-color: rgba(220, 80, 80, 0.5);
-    }
-
-    /* --- BeatLeader field grid --- */
-    .bl-field-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px 24px;
-    }
-
-    /* --- Layout: position tiles --- */
+    /* --- Position tiles --- */
     .pos-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -336,8 +245,7 @@
 
     .pos-dot {
       position: absolute;
-      width: 30px;
-      height: 14px;
+      width: 30px; height: 14px;
       background: rgba(96,176,255,0.55);
       border-radius: 3px;
     }
@@ -345,7 +253,6 @@
     .pos-dot.tr { top: 6px; right: 6px; }
     .pos-dot.bl { bottom: 6px; left: 6px; }
     .pos-dot.br { bottom: 6px; right: 6px; }
-
     .pos-tile.selected .pos-dot { background: rgba(96,176,255,0.9); }
 
     .pos-label {
@@ -355,71 +262,68 @@
       color: rgba(200,200,220,0.7);
       background: rgba(255,255,255,0.03);
     }
-
     .pos-tile.selected .pos-label { color: #60b0ff; }
 
-    /* --- Layout: scale slider --- */
-    input[type="range"] {
-      width: 100%;
-      accent-color: #60b0ff;
-      margin-top: 6px;
-      cursor: pointer;
-    }
-
+    /* --- Scale row --- */
     .scale-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-top: 12px;
       margin-bottom: 2px;
     }
-
     .scale-row label { margin-bottom: 0; }
+    #scale-display { font-size: 0.9rem; font-weight: 700; color: #60b0ff; }
 
-    #scale-display {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #60b0ff;
-    }
-
-    /* --- Layout: panel visibility --- */
-    .panel-vis-grid {
+    /* --- Check grids --- */
+    .check-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px 24px;
-      margin-top: 10px;
     }
 
-    /* --- Song history --- */
-    .sh-count-row {
+    /* --- Inline row (label + small input) --- */
+    .inline-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-top: 10px;
       font-size: 0.85rem;
       color: rgba(220,220,240,0.8);
       flex-wrap: wrap;
     }
 
-    .sh-count-row input[type="number"] {
-      width: 70px;
-    }
+    .inline-row input[type="number"] { width: 70px; }
+    .inline-row input[type="text"]   { width: 160px; }
 
-    /* --- BeatLeader history count --- */
-    .bl-count-row {
+    /* --- Career stats --- */
+    .stats-numbers {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-top: 10px;
-      font-size: 0.85rem;
-      color: rgba(220,220,240,0.8);
+      gap: 12px;
+      margin-bottom: 14px;
     }
 
-    .bl-count-row input[type="number"] {
-      width: 70px;
+    .stats-num-item {
+      flex: 1;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 10px 12px;
+      text-align: center;
     }
 
-    /* --- Custom CSS --- */
+    .stats-num-value { font-size: 1.1rem; font-weight: 700; color: #fff; }
+    .stats-num-label { font-size: 0.68rem; color: rgba(180,180,200,0.55); margin-top: 3px; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    #btn-reset-stats {
+      background: rgba(220,80,80,0.12);
+      border-color: rgba(220,80,80,0.3);
+      color: #f09090;
+    }
+    #btn-reset-stats:hover {
+      background: rgba(220,80,80,0.22);
+      border-color: rgba(220,80,80,0.5);
+    }
+
+    /* --- Custom CSS textarea --- */
     #input-custom-css {
       width: 100%;
       background: rgba(0,0,0,0.35);
@@ -428,17 +332,14 @@
       color: #c8ffc8;
       padding: 10px 12px;
       font-size: 0.82rem;
-      font-family: 'Cascadia Code', 'Fira Mono', 'Consolas', monospace;
+      font-family: 'Cascadia Code','Fira Mono','Consolas',monospace;
       line-height: 1.5;
       outline: none;
       resize: vertical;
       min-height: 140px;
       transition: border-color 0.2s;
     }
-
-    #input-custom-css:focus {
-      border-color: rgba(100, 180, 255, 0.5);
-    }
+    #input-custom-css:focus { border-color: rgba(100,180,255,0.5); }
 
     .css-hint {
       font-size: 0.72rem;
@@ -446,7 +347,6 @@
       margin-top: 8px;
       line-height: 1.6;
     }
-
     .css-hint code {
       background: rgba(255,255,255,0.07);
       padding: 1px 5px;
@@ -456,16 +356,63 @@
       color: rgba(200,255,200,0.7);
     }
 
+    /* --- Divider --- */
+    .divider {
+      border: none;
+      border-top: 1px solid rgba(255,255,255,0.07);
+      margin: 20px 0;
+    }
+
+    /* --- Save row --- */
+    .save-row {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-top: 8px;
+      margin-bottom: 20px;
+    }
+
+    #btn-save {
+      background: rgba(96,176,255,0.18);
+      border-color: rgba(96,176,255,0.4);
+      font-size: 0.95rem;
+      padding: 10px 28px;
+    }
+    #btn-save:hover { background: rgba(96,176,255,0.28); }
+
+    #save-status {
+      font-size: 0.82rem;
+      color: #6cdd8a;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    /* --- Overlay link --- */
+    #link-overlay {
+      display: inline-block;
+      color: #60b0ff;
+      font-size: 0.82rem;
+      text-decoration: none;
+      padding: 4px 0;
+    }
+    #link-overlay:hover { text-decoration: underline; }
+
+    /* --- WS port inline --- */
+    input#input-ws-port { width: 100px; }
+    input#input-ws-host { width: 220px; }
+
     /* --- CORS warning --- */
     #cors-warning {
       display: none;
       width: 100%;
       max-width: 560px;
-      background: rgba(220, 120, 30, 0.15);
-      border: 1px solid rgba(220, 120, 30, 0.45);
+      background: rgba(220,120,30,0.15);
+      border: 1px solid rgba(220,120,30,0.45);
       border-radius: 10px;
       padding: 14px 16px;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       font-size: 0.84rem;
       line-height: 1.6;
       color: #f0c080;
@@ -495,197 +442,335 @@
   <h1>BSPlus Overlay</h1>
   <p class="subtitle">Einstellungen für OBS Browser Source</p>
 
-  <!-- Theme -->
-  <div class="section">
-    <div class="section-title">Theme</div>
-    <div class="theme-tiles">
+  <!-- Tab navigation -->
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="aussehen">Aussehen</button>
+    <button class="tab-btn" data-tab="beatleader">BeatLeader</button>
+    <button class="tab-btn" data-tab="verlauf">Verlauf</button>
+    <button class="tab-btn" data-tab="erweitert">Erweitert</button>
+  </nav>
 
-      <div class="theme-tile" data-theme="minimal">
-        <div class="theme-preview preview-minimal">
-          <div class="prev-score">987,654</div>
-          <div class="prev-bar"></div>
+  <!-- ═══ Tab: Aussehen ═══ -->
+  <div class="tab-pane active" data-tab="aussehen">
+
+    <div class="section">
+      <div class="section-title">Theme</div>
+      <div class="theme-tiles">
+        <div class="theme-tile" data-theme="minimal">
+          <div class="theme-preview preview-minimal">
+            <div class="prev-score">987,654</div>
+            <div class="prev-bar"></div>
+          </div>
+          <div class="theme-label">Minimal</div>
         </div>
-        <div class="theme-label">Minimal</div>
-      </div>
-
-      <div class="theme-tile" data-theme="neon">
-        <div class="theme-preview preview-neon">
-          <div class="prev-score">987,654</div>
-          <div class="prev-bar"></div>
+        <div class="theme-tile" data-theme="neon">
+          <div class="theme-preview preview-neon">
+            <div class="prev-score">987,654</div>
+            <div class="prev-bar"></div>
+          </div>
+          <div class="theme-label">Neon</div>
         </div>
-        <div class="theme-label">Neon</div>
-      </div>
-
-      <div class="theme-tile" data-theme="glass">
-        <div class="theme-preview preview-glass">
-          <div class="prev-score">987,654</div>
-          <div class="prev-bar"></div>
+        <div class="theme-tile" data-theme="glass">
+          <div class="theme-preview preview-glass">
+            <div class="prev-score">987,654</div>
+            <div class="prev-bar"></div>
+          </div>
+          <div class="theme-label">Glass</div>
         </div>
-        <div class="theme-label">Glass</div>
       </div>
-
     </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-title">Position</div>
+      <div class="pos-grid">
+        <div class="pos-tile" data-pos="top-left">
+          <div class="pos-preview"><div class="pos-dot tl"></div></div>
+          <div class="pos-label">Oben links</div>
+        </div>
+        <div class="pos-tile" data-pos="top-right">
+          <div class="pos-preview"><div class="pos-dot tr"></div></div>
+          <div class="pos-label">Oben rechts</div>
+        </div>
+        <div class="pos-tile" data-pos="bottom-left">
+          <div class="pos-preview"><div class="pos-dot bl"></div></div>
+          <div class="pos-label">Unten links</div>
+        </div>
+        <div class="pos-tile" data-pos="bottom-right">
+          <div class="pos-preview"><div class="pos-dot br"></div></div>
+          <div class="pos-label">Unten rechts</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Größe</div>
+      <div class="scale-row">
+        <label for="input-scale">Skalierung</label>
+        <span id="scale-display">100%</span>
+      </div>
+      <input type="range" id="input-scale" min="60" max="150" step="5" value="100">
+    </div>
+
+    <div class="section">
+      <div class="section-title">Sichtbare Panels</div>
+      <div class="check-grid">
+        <label class="toggle-label"><input type="checkbox" id="chk-show-songcard"> Song-Karte</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-show-progress"> Fortschrittsbalken</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-show-score"> Score-Panel</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-show-health"> Health-Balken</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-show-pbdelta"> PB-Delta</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-show-accgraph"> Accuracy-Graph</label>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Layout -->
-  <div class="section">
-    <div class="section-title">Layout</div>
+  <!-- ═══ Tab: BeatLeader ═══ -->
+  <div class="tab-pane" data-tab="beatleader">
 
-    <label style="margin-bottom:8px">Position</label>
-    <div class="pos-grid">
-      <div class="pos-tile" data-pos="top-left">
-        <div class="pos-preview"><div class="pos-dot tl"></div></div>
-        <div class="pos-label">Oben links</div>
-      </div>
-      <div class="pos-tile" data-pos="top-right">
-        <div class="pos-preview"><div class="pos-dot tr"></div></div>
-        <div class="pos-label">Oben rechts</div>
-      </div>
-      <div class="pos-tile" data-pos="bottom-left">
-        <div class="pos-preview"><div class="pos-dot bl"></div></div>
-        <div class="pos-label">Unten links</div>
-      </div>
-      <div class="pos-tile" data-pos="bottom-right">
-        <div class="pos-preview"><div class="pos-dot br"></div></div>
-        <div class="pos-label">Unten rechts</div>
+    <div class="section">
+      <div class="section-title">Angezeigte Felder</div>
+      <p class="section-desc">Welche Felder im BeatLeader-Panel erscheinen, wenn ein Score gefunden wird.</p>
+      <div class="check-grid">
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-pp">     PP</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-acc">   Accuracy</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-stars"> Sterne (★)</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-rank">  Rank</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-fc">    FC / Misses</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-ppgain"> PP Gain (↑)</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-maxpp"> Max PP</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-bl-date">  Datum gesetzt</label>
       </div>
     </div>
 
-    <div class="scale-row">
-      <label for="input-scale">Größe</label>
-      <span id="scale-display">100%</span>
-    </div>
-    <input type="range" id="input-scale" min="60" max="150" step="5" value="100">
+    <hr class="divider">
 
-    <div style="font-size:0.8rem;color:rgba(200,200,220,0.55);margin-top:16px;margin-bottom:8px">Sichtbare Elemente</div>
-    <div class="panel-vis-grid">
-      <label class="toggle-label"><input type="checkbox" id="chk-show-songcard"> Song-Karte</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-show-progress"> Fortschrittsbalken</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-show-score"> Score-Panel</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-show-health"> Health-Balken</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-show-pbdelta"> PB-Delta</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-show-accgraph"> Accuracy-Graph</label>
-    </div>
-  </div>
-
-  <!-- WebSocket -->
-  <div class="section">
-    <div class="section-title">BSPlus WebSocket</div>
-    <label for="input-ws-host">IP / Host (Standard: localhost)</label>
-    <input type="text" id="input-ws-host" value="localhost" placeholder="localhost oder 192.168.x.x">
-    <label for="input-ws-port" style="margin-top:12px">Port (Standard: 2947)</label>
-    <input type="number" id="input-ws-port" value="2947" min="1024" max="65535">
-  </div>
-
-  <!-- Career Stats -->
-  <div class="section">
-    <div class="section-title">Career Stats</div>
-    <div class="stats-numbers">
-      <div class="stats-num-item">
-        <div class="stats-num-value" id="disp-total">0</div>
-        <div class="stats-num-label">Total</div>
-      </div>
-      <div class="stats-num-item">
-        <div class="stats-num-value" id="disp-hits">0</div>
-        <div class="stats-num-label">Hits</div>
-      </div>
-      <div class="stats-num-item">
-        <div class="stats-num-value" id="disp-misses">0</div>
-        <div class="stats-num-label">Misses</div>
-      </div>
-    </div>
-    <div class="stats-controls">
-      <button id="btn-reset-stats">Zurücksetzen</button>
-      <label class="toggle-label">
-        <input type="checkbox" id="chk-stats-enabled" checked>
-        Stats im Overlay anzeigen
-      </label>
-    </div>
-  </div>
-
-  <!-- BeatLeader Fields -->
-  <div class="section">
-    <div class="section-title">BeatLeader Felder</div>
-    <p style="font-size:0.8rem;color:rgba(200,200,220,0.55);margin-bottom:12px;line-height:1.5">
-      Welche Felder im BeatLeader-Panel angezeigt werden (nur wenn ein Score gefunden wird).
-    </p>
-    <div class="bl-field-grid">
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-pp">     PP</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-acc">   Accuracy</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-stars"> Sterne (★)</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-rank">  Rank</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-fc">    FC / Misses</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-date">  Datum gesetzt</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-maxpp"> Max PP</label>
-      <label class="toggle-label"><input type="checkbox" id="chk-bl-ppgain"> PP Gain (↑)</label>
-    </div>
-
-    <div class="bl-history-row" style="margin-top: 16px">
-      <label class="toggle-label">
+    <div class="section">
+      <div class="section-title">Score-Verlauf</div>
+      <p class="section-desc">Zeigt vergangene Scores für dieselbe Map im BeatLeader-Panel.</p>
+      <label class="toggle-label" style="margin-bottom:14px">
         <input type="checkbox" id="chk-bl-history"> Score-Verlauf anzeigen
       </label>
-      <div class="bl-count-row">
-        <label for="input-bl-history-count">Anzahl Einträge</label>
+      <div class="inline-row">
+        <label for="input-bl-history-count">Einträge</label>
         <input type="number" id="input-bl-history-count" min="1" max="10" value="5">
       </div>
     </div>
+
   </div>
 
-  <!-- Song History -->
-  <div class="section">
-    <div class="section-title">Song-Verlauf</div>
-    <p style="font-size:0.8rem;color:rgba(200,200,220,0.55);margin-bottom:12px;line-height:1.5">
-      Zeigt die zuletzt gespielten Songs im Hauptmenü an, mit automatischem Scrollen.
-    </p>
-    <div class="bl-field-grid" style="margin-bottom:12px">
-      <label class="toggle-label">
-        <input type="checkbox" id="chk-song-history"> Verlauf anzeigen
-      </label>
-      <label class="toggle-label">
-        <input type="checkbox" id="chk-song-history-scroll"> Auto-Scroll
-      </label>
+  <!-- ═══ Tab: Verlauf ═══ -->
+  <div class="tab-pane" data-tab="verlauf">
+
+    <div class="section">
+      <div class="section-title">Song-Verlauf</div>
+      <p class="section-desc">Zeigt die zuletzt gespielten Songs im Hauptmenü-Overlay.</p>
+      <div class="check-grid" style="margin-bottom:14px">
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-song-history"> Verlauf anzeigen
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-song-history-scroll"> Auto-Scroll
+        </label>
+      </div>
+      <div class="inline-row" style="margin-bottom:10px">
+        <label for="input-song-history-count">Einträge (max.)</label>
+        <input type="number" id="input-song-history-count" min="1" max="20" value="8">
+        <label for="input-song-history-visible" style="margin-left:8px">Sichtbare Zeilen</label>
+        <input type="number" id="input-song-history-visible" min="1" max="8" value="3">
+      </div>
+      <div class="inline-row">
+        <label for="input-song-history-speed">Scroll-Geschwindigkeit (ms)</label>
+        <input type="number" id="input-song-history-speed" min="500" max="10000" step="500" value="3000">
+      </div>
     </div>
-    <div class="sh-count-row">
-      <label for="input-song-history-count">Einträge (max.)</label>
-      <input type="number" id="input-song-history-count" min="1" max="20" value="8">
-      <label for="input-song-history-visible" style="margin-left:6px">Sichtbare Zeilen</label>
-      <input type="number" id="input-song-history-visible" min="1" max="8" value="3">
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-title">Career Stats</div>
+      <div class="stats-numbers">
+        <div class="stats-num-item">
+          <div class="stats-num-value" id="disp-total">0</div>
+          <div class="stats-num-label">Total</div>
+        </div>
+        <div class="stats-num-item">
+          <div class="stats-num-value" id="disp-hits">0</div>
+          <div class="stats-num-label">Hits</div>
+        </div>
+        <div class="stats-num-item">
+          <div class="stats-num-value" id="disp-misses">0</div>
+          <div class="stats-num-label">Misses</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+        <button id="btn-reset-stats">Zurücksetzen</button>
+        <label class="toggle-label">
+          <input type="checkbox" id="chk-stats-enabled" checked>
+          Stats im Overlay anzeigen
+        </label>
+      </div>
     </div>
-    <div class="sh-count-row" style="margin-top:8px">
-      <label for="input-song-history-speed">Scroll-Geschwindigkeit (ms pro Zeile)</label>
-      <input type="number" id="input-song-history-speed" min="500" max="10000" step="500" value="3000">
-    </div>
+
   </div>
 
-  <!-- Custom CSS -->
-  <div class="section">
-    <div class="section-title">Custom CSS</div>
-    <textarea id="input-custom-css" spellcheck="false" placeholder="/* Eigene Styles hier einfügen */
+  <!-- ═══ Tab: Erweitert ═══ -->
+  <div class="tab-pane" data-tab="erweitert">
+
+    <div class="section">
+      <div class="section-title">BSPlus WebSocket</div>
+      <div class="inline-row" style="margin-bottom:12px">
+        <label for="input-ws-host">Host</label>
+        <input type="text" id="input-ws-host" value="localhost" placeholder="localhost oder 192.168.x.x" style="width:220px">
+      </div>
+      <div class="inline-row">
+        <label for="input-ws-port">Port</label>
+        <input type="number" id="input-ws-port" value="2947" min="1024" max="65535" style="width:100px">
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-title">Auto-Update</div>
+      <div id="update-status-line" style="font-size:0.82rem; color:rgba(200,200,220,0.55); margin-bottom:12px; line-height:1.5;">
+        Wird geprüft…
+      </div>
+      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap">
+        <button id="btn-check-update">Nach Updates suchen</button>
+        <button id="btn-apply-update" style="display:none; background:rgba(96,176,255,0.18); border-color:rgba(96,176,255,0.4); color:#60b0ff">Update installieren</button>
+      </div>
+      <div id="update-result" style="font-size:0.82rem; margin-top:10px; display:none; line-height:1.5;"></div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-title">Custom CSS</div>
+      <textarea id="input-custom-css" spellcheck="false" placeholder="/* Eigene Styles hier einfügen */
 #score { color: #ff2d78; }
 #accuracy { font-size: 1.2rem; }"></textarea>
-    <p class="css-hint">
-      Styles werden nach dem Theme-CSS injiziert und können alle Overlay-Elemente überschreiben.<br>
-      Selektoren: <code>#score</code>, <code>#accuracy</code>, <code>#song-name</code>, <code>#health-bar</code>, <code>#overlay-playing</code> u.v.m.<br>
-      Änderungen werden aktiv wenn das Overlay neu geladen wird (OBS: Browser Source → Refresh).
-    </p>
+      <p class="css-hint">
+        Styles werden nach dem Theme-CSS injiziert.<br>
+        Selektoren: <code>#score</code>, <code>#accuracy</code>, <code>#song-name</code>, <code>#health-bar</code>, <code>#overlay-playing</code> u.v.m.<br>
+        Änderungen werden aktiv wenn das Overlay neu geladen wird (OBS: Browser Source → Refresh).
+      </p>
+    </div>
+
   </div>
 
-  <!-- Save -->
+  <!-- Save + link -->
   <div class="save-row">
     <button id="btn-save">Speichern</button>
     <span id="save-status">Gespeichert!</span>
   </div>
 
-  <!-- Overlay link -->
-  <div class="overlay-link-row">
-    <a id="link-overlay" href="index.html" target="_blank">→ Overlay öffnen (index.html)</a>
-  </div>
+  <a id="link-overlay" href="index.html" target="_blank">→ Overlay öffnen (index.html)</a>
 
   <script src="js/config.js"></script>
   <script src="js/settings.js"></script>
   <script>
     if (window.location.protocol === 'file:') {
       document.getElementById('cors-warning').style.display = 'block';
+    }
+
+    // Tab switching
+    const tabBtns  = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    function activateTab(name) {
+      tabBtns.forEach(b  => b.classList.toggle('active',  b.dataset.tab === name));
+      tabPanes.forEach(p => p.classList.toggle('active', p.dataset.tab === name));
+      try { sessionStorage.setItem('settingsTab', name); } catch(_) {}
+    }
+
+    tabBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+
+    // Restore last active tab
+    try {
+      const saved = sessionStorage.getItem('settingsTab');
+      if (saved) activateTab(saved);
+    } catch(_) {}
+
+    // ── Auto-Update ──────────────────────────────────────────────────────────
+    const updateStatusEl = document.getElementById('update-status-line');
+    const btnCheckUpdate = document.getElementById('btn-check-update');
+    const btnApplyUpdate = document.getElementById('btn-apply-update');
+    const updateResultEl = document.getElementById('update-result');
+
+    function shortSha(sha) { return sha ? sha.slice(0, 7) : 'unbekannt'; }
+
+    async function checkForUpdate() {
+      updateStatusEl.textContent = 'Suche nach Updates…';
+      btnCheckUpdate.disabled = true;
+      btnApplyUpdate.style.display = 'none';
+      updateResultEl.style.display = 'none';
+      try {
+        const r    = await fetch('/update/check');
+        const data = await r.json();
+        if (data.error) {
+          updateStatusEl.textContent = 'Fehler: ' + data.error;
+        } else if (data.update_available) {
+          updateStatusEl.innerHTML =
+            'Update verfügbar — Lokal: <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-family:monospace">'
+            + shortSha(data.local) + '</code> → Remote: <code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-family:monospace">'
+            + shortSha(data.remote) + '</code>';
+          btnApplyUpdate.style.display = '';
+          btnApplyUpdate.disabled = false;
+          btnApplyUpdate.textContent = 'Update installieren';
+        } else {
+          updateStatusEl.innerHTML =
+            'Bereits aktuell \u2713 (<code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-family:monospace">'
+            + shortSha(data.remote) + '</code>)';
+        }
+      } catch (e) {
+        updateStatusEl.textContent = 'Nicht erreichbar (kein Internet oder Server nicht gestartet?)';
+      }
+      btnCheckUpdate.disabled = false;
+    }
+
+    btnCheckUpdate.addEventListener('click', checkForUpdate);
+
+    btnApplyUpdate.addEventListener('click', async () => {
+      btnApplyUpdate.disabled = true;
+      btnApplyUpdate.textContent = 'Installiere…';
+      updateResultEl.style.display = '';
+      updateResultEl.style.color   = 'rgba(200,200,220,0.65)';
+      updateResultEl.textContent   = 'Download läuft…';
+      try {
+        const r    = await fetch('/update/apply', { method: 'POST' });
+        const data = await r.json();
+        if (data.ok) {
+          updateResultEl.style.color = '#6cdd8a';
+          updateResultEl.textContent =
+            '\u2713 ' + data.updated_files.length + ' Dateien aktualisiert. '
+            + 'Bitte Server neu starten, damit alle Änderungen aktiv werden.';
+          btnApplyUpdate.style.display = 'none';
+          updateStatusEl.innerHTML =
+            'Aktuell \u2713 (<code style="background:rgba(255,255,255,0.08);padding:1px 5px;border-radius:3px;font-family:monospace">'
+            + shortSha(data.remote_sha) + '</code>)';
+        } else {
+          updateResultEl.style.color = '#f09090';
+          updateResultEl.textContent = 'Fehler: ' + data.error;
+          btnApplyUpdate.disabled    = false;
+          btnApplyUpdate.textContent = 'Update installieren';
+        }
+      } catch (e) {
+        updateResultEl.style.color = '#f09090';
+        updateResultEl.textContent = 'Fehler: ' + e.message;
+        btnApplyUpdate.disabled    = false;
+        btnApplyUpdate.textContent = 'Update installieren';
+      }
+    });
+
+    // Automatisch prüfen wenn Server läuft (nicht file://)
+    if (window.location.protocol !== 'file:') {
+      checkForUpdate();
+    } else {
+      updateStatusEl.textContent = 'Nicht verfügbar (file://-Modus)';
+      btnCheckUpdate.disabled = true;
     }
   </script>
 </body>

@@ -11,6 +11,7 @@ import http.server
 import urllib.request
 import urllib.error
 import urllib.parse
+import importlib.util
 import json
 import os
 import sys
@@ -21,6 +22,8 @@ BL_PREFIX = '/bl/'
 IMG_PREFIX = '/img'
 CONFIG_PATH = 'config.json'
 CONFIG_ROUTE = '/config'
+UPDATE_CHECK_ROUTE = '/update/check'
+UPDATE_APPLY_ROUTE = '/update/apply'
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -38,12 +41,16 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._proxy_image()
         elif self.path == CONFIG_ROUTE:
             self._serve_config()
+        elif self.path == UPDATE_CHECK_ROUTE:
+            self._update_check()
         else:
             super().do_GET()
 
     def do_POST(self):
         if self.path == CONFIG_ROUTE:
             self._save_config()
+        elif self.path == UPDATE_APPLY_ROUTE:
+            self._update_apply()
         else:
             self.send_response(404)
             self.end_headers()
@@ -145,6 +152,36 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(502)
             self._cors_headers()
             self.end_headers()
+
+    def _load_updater(self):
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'updater.py')
+        spec = importlib.util.spec_from_file_location('updater', path)
+        mod  = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+    def _update_check(self):
+        try:
+            result = self._load_updater().check()
+        except Exception as e:
+            result = {'error': str(e)}
+        self._json_response(result)
+
+    def _update_apply(self):
+        try:
+            result = self._load_updater().apply()
+        except Exception as e:
+            result = {'ok': False, 'error': str(e)}
+        self._json_response(result)
+
+    def _json_response(self, data):
+        body = json.dumps(data).encode()
+        self.send_response(200)
+        self.send_header('Content-Type', 'application/json; charset=utf-8')
+        self.send_header('Content-Length', str(len(body)))
+        self._cors_headers()
+        self.end_headers()
+        self.wfile.write(body)
 
     def _cors_headers(self):
         self.send_header('Access-Control-Allow-Origin', '*')
