@@ -1,0 +1,52 @@
+/* theme-minimal.css — dark background, white text, subtle transparency */
+
+:root {
+  --bg-card: rgba(15, 15, 20, 0.82);
+  --bg-score: rgba(10, 10, 15, 0.78);
+  --bg-bl: rgba(20, 20, 28, 0.75);
+  --text-primary: #f0f0f0;
+  --text-secondary: rgba(220, 220, 220, 0.75);
+  --accent: #e8e8e8;
+  --progress-fill: #ffffff;
+  --border: rgba(255, 255, 255, 0.08);
+}
+
+body {
+  color: var(--text-primary);
+}
+
+#song-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+#score-panel {
+  background: var(--bg-score);
+  border: 1px solid var(--border);
+}
+
+#beatleader-panel {
+  background: var(--bg-bl);
+  border: 1px solid var(--border);
+}
+
+#progress-bar {
+  background: var(--progress-fill);
+}
+
+#accuracy {
+  color: var(--accent);
+}
+
+#combo { color: #90caf9; }
+#miss { color: #ef9a9a; }
+
+#player-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+}
+
+#pause-indicator {
+  color: #fff;
+  text-shadow: 0 0 30px rgba(255,255,255,0.4);
+}

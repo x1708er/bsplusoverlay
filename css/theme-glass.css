@@ -1,0 +1,77 @@
+/* theme-glass.css — glassmorphism, backdrop-filter blur, semi-transparent */
+
+:root {
+  --glass-bg: rgba(255, 255, 255, 0.10);
+  --glass-bg-strong: rgba(255, 255, 255, 0.14);
+  --glass-border: rgba(255, 255, 255, 0.22);
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.75);
+  --accent: #c9e8ff;
+}
+
+body {
+  color: var(--text-primary);
+}
+
+#song-card,
+#score-panel,
+#beatleader-panel,
+#player-banner {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+#score-panel {
+  background: var(--glass-bg-strong);
+}
+
+#cover-art {
+  box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+}
+
+#song-name {
+  color: #fff;
+}
+
+#song-artist,
+#song-mapper {
+  color: var(--text-secondary);
+}
+
+#score {
+  color: #fff;
+  font-weight: 800;
+}
+
+#accuracy {
+  color: var(--accent);
+}
+
+#combo { color: #a5d6f7; }
+#miss  { color: #f9a8a8; }
+
+#progress-bar {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+#health-bar {
+  background: rgba(100, 230, 140, 0.85);
+}
+
+#beatleader-panel .bl-value {
+  color: #d4c4ff;
+}
+
+#pause-indicator {
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 30px rgba(255,255,255,0.5);
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  padding: 16px 40px;
+  border-radius: 16px;
+  border: 1px solid var(--glass-border);
+}

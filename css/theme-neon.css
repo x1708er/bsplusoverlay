@@ -1,0 +1,92 @@
+/* theme-neon.css — Beat Saber neon (blue/pink), glow effects */
+
+:root {
+  --neon-blue: #00c8ff;
+  --neon-pink: #ff2d78;
+  --neon-purple: #b44aff;
+  --bg-card: rgba(5, 5, 20, 0.88);
+  --bg-score: rgba(5, 5, 20, 0.85);
+  --bg-bl: rgba(5, 5, 20, 0.80);
+  --text-primary: #e8f0ff;
+  --border-blue: rgba(0, 200, 255, 0.35);
+  --border-pink: rgba(255, 45, 120, 0.35);
+}
+
+body {
+  color: var(--text-primary);
+}
+
+#song-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  box-shadow: 0 0 16px rgba(0, 200, 255, 0.15), inset 0 0 20px rgba(0,200,255,0.04);
+}
+
+#cover-art {
+  box-shadow: 0 0 12px rgba(0, 200, 255, 0.5);
+}
+
+#song-name {
+  color: var(--neon-blue);
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.6);
+}
+
+#difficulty-badge {
+  box-shadow: 0 0 6px currentColor;
+}
+
+#score-panel {
+  background: var(--bg-score);
+  border: 1px solid var(--border-pink);
+  box-shadow: 0 0 16px rgba(255, 45, 120, 0.12);
+}
+
+#score {
+  color: var(--neon-pink);
+  text-shadow: 0 0 14px rgba(255, 45, 120, 0.7);
+}
+
+#accuracy {
+  color: var(--neon-blue);
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.5);
+}
+
+#combo { color: #7dffd6; text-shadow: 0 0 8px rgba(125,255,214,0.4); }
+#miss  { color: #ff6e6e; text-shadow: 0 0 8px rgba(255,110,110,0.4); }
+
+#progress-bar {
+  background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink));
+  box-shadow: 0 0 8px rgba(0, 200, 255, 0.6);
+}
+
+#health-bar {
+  background: linear-gradient(90deg, #00e676, #69ff47);
+  box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
+}
+
+#beatleader-panel {
+  background: var(--bg-bl);
+  border: 1px solid rgba(180, 74, 255, 0.35);
+  box-shadow: 0 0 12px rgba(180, 74, 255, 0.1);
+}
+
+#beatleader-panel .bl-value {
+  color: var(--neon-purple);
+  text-shadow: 0 0 8px rgba(180, 74, 255, 0.5);
+}
+
+#player-banner {
+  background: var(--bg-card);
+  border: 1px solid var(--border-blue);
+  box-shadow: 0 0 16px rgba(0, 200, 255, 0.15);
+}
+
+#player-name {
+  color: var(--neon-blue);
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.6);
+}
+
+#pause-indicator {
+  color: var(--neon-blue);
+  text-shadow: 0 0 40px rgba(0, 200, 255, 0.9), 0 0 80px rgba(0, 200, 255, 0.4);
+}

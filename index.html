@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BSPlus Overlay</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" id="theme-css" href="css/theme-minimal.css">
+</head>
+<body>
+
+  <!-- Connection warning (hidden when connected) -->
+  <div id="connection-warning" class="hidden">
+    Keine Verbindung zu BSPlus
+  </div>
+
+  <!-- Pause indicator (hidden when not paused) -->
+  <div id="pause-indicator" class="hidden">PAUSE</div>
+
+  <!-- Playing state overlay -->
+  <div id="overlay-playing" class="hidden">
+
+    <!-- Song info card -->
+    <div id="song-card">
+      <img id="cover-art" src="" alt="Cover">
+      <div id="song-info">
+        <div id="song-name">–</div>
+        <div id="song-artist"></div>
+        <div id="song-mapper"></div>
+        <div id="song-meta">
+          <span id="difficulty-badge">–</span>
+          <span id="bpm"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Progress bar + time -->
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+    <div id="time-row">
+      <span id="time-current">0:00</span>
+      <span id="time-total">0:00</span>
+    </div>
+
+    <!-- Score panel -->
+    <div id="score-panel">
+      <span id="score">0</span>
+      <span id="accuracy">100.00%</span>
+      <div id="combo-miss">
+        <span id="combo">0x</span>
+        <span id="miss">0 miss</span>
+      </div>
+    </div>
+
+    <!-- Health bar -->
+    <div id="health-container">
+      <div id="health-bar"></div>
+    </div>
+
+    <!-- BeatLeader panel (hidden until score found) -->
+    <div id="beatleader-panel" class="hidden">
+      <div>
+        <div class="bl-label">PP</div>
+        <div class="bl-value" id="bl-pp">—</div>
+      </div>
+      <div>
+        <div class="bl-label">Acc</div>
+        <div class="bl-value" id="bl-acc">—</div>
+      </div>
+      <div>
+        <div class="bl-label">Rank</div>
+        <div class="bl-value" id="bl-rank">—</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Menu state overlay (player banner bottom-left) -->
+  <div id="overlay-menu" class="hidden">
+    <div id="player-banner">
+      <img id="player-avatar" alt="">
+      <div id="player-banner-info">
+        <div id="player-name"></div>
+        <div id="player-banner-sub">Beat Saber</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dev link (only visible with ?dev=1) -->
+  <a id="dev-link" href="settings.html" class="hidden">⚙ Settings</a>
+
+  <script src="js/websocket.js"></script>
+  <script src="js/beatleader.js"></script>
+  <script src="js/overlay.js"></script>
+</body>
+</html>

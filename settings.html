@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BSPlus Overlay – Einstellungen</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0e0e12;
+      color: #e8e8f0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 60px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .subtitle {
+      font-size: 0.85rem;
+      color: rgba(200,200,220,0.55);
+      margin-bottom: 36px;
+    }
+
+    .section {
+      width: 100%;
+      max-width: 560px;
+      margin-bottom: 28px;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: rgba(180,180,200,0.55);
+      margin-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+      color: rgba(220,220,240,0.8);
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      color: #fff;
+      padding: 9px 13px;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      border-color: rgba(100, 180, 255, 0.5);
+    }
+
+    button {
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 8px;
+      padding: 9px 16px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+      white-space: nowrap;
+    }
+
+    button:hover {
+      background: rgba(255,255,255,0.16);
+      border-color: rgba(255,255,255,0.25);
+    }
+
+    /* --- Theme tiles --- */
+    .theme-tiles {
+      display: flex;
+      gap: 14px;
+    }
+
+    .theme-tile {
+      flex: 1;
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s;
+      user-select: none;
+    }
+
+    .theme-tile:hover {
+      border-color: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .theme-tile.selected {
+      border-color: #60b0ff;
+    }
+
+    .theme-preview {
+      height: 80px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 8px;
+      gap: 4px;
+    }
+
+    /* Minimal preview */
+    .preview-minimal {
+      background: #0f0f14;
+    }
+    .preview-minimal .prev-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.85);
+      width: 65%;
+    }
+    .preview-minimal .prev-score {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #f0f0f0;
+    }
+
+    /* Neon preview */
+    .preview-neon {
+      background: #050514;
+    }
+    .preview-neon .prev-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #00c8ff, #ff2d78);
+      width: 65%;
+      box-shadow: 0 0 6px rgba(0,200,255,0.7);
+    }
+    .preview-neon .prev-score {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #ff2d78;
+      text-shadow: 0 0 8px rgba(255,45,120,0.8);
+    }
+
+    /* Glass preview */
+    .preview-glass {
+      background: linear-gradient(135deg, #1a2a4a 0%, #2d1a4a 100%);
+    }
+    .preview-glass .prev-bar {
+      height: 4px;
+      border-radius: 2px;
+      background: rgba(255,255,255,0.7);
+      width: 65%;
+    }
+    .preview-glass .prev-score {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(255,255,255,0.12);
+      backdrop-filter: blur(4px);
+      padding: 2px 6px;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: inline-block;
+    }
+
+    .theme-label {
+      text-align: center;
+      font-size: 0.78rem;
+      padding: 7px;
+      color: rgba(200,200,220,0.75);
+      background: rgba(255,255,255,0.04);
+    }
+
+    .theme-tile.selected .theme-label {
+      color: #60b0ff;
+    }
+
+    /* --- Save button row --- */
+    .save-row {
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    #btn-save {
+      background: rgba(96, 176, 255, 0.18);
+      border-color: rgba(96, 176, 255, 0.4);
+      font-size: 0.95rem;
+      padding: 10px 28px;
+    }
+
+    #btn-save:hover {
+      background: rgba(96, 176, 255, 0.28);
+    }
+
+    #save-status {
+      font-size: 0.82rem;
+      color: #6cdd8a;
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+
+    /* --- Overlay link --- */
+    .overlay-link-row {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    #link-overlay {
+      display: inline-block;
+      color: #60b0ff;
+      font-size: 0.85rem;
+      text-decoration: none;
+      padding: 8px 0;
+    }
+
+    #link-overlay:hover { text-decoration: underline; }
+
+    /* --- WS port --- */
+    input#input-ws-port {
+      width: 120px;
+    }
+
+    /* --- CORS warning --- */
+    #cors-warning {
+      display: none;
+      width: 100%;
+      max-width: 560px;
+      background: rgba(220, 120, 30, 0.15);
+      border: 1px solid rgba(220, 120, 30, 0.45);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 0.84rem;
+      line-height: 1.6;
+      color: #f0c080;
+    }
+    #cors-warning strong { color: #ffd580; }
+    #cors-warning code {
+      background: rgba(255,255,255,0.08);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cors-warning">
+    <strong>Seite läuft über file:// – BeatLeader-API nicht verfügbar</strong><br>
+    BeatLeader setzt keine CORS-Header, daher müssen Anfragen über einen lokalen Proxy-Server laufen.<br><br>
+    <strong>Windows:</strong> Doppelklick auf <code>start.bat</code>, dann
+    <a href="http://localhost:7273/settings.html" style="color:#ffd580">http://localhost:7273/settings.html</a> öffnen.<br>
+    <strong>Linux/Mac:</strong> <code>./start.sh</code> ausführen, dann
+    <a href="http://localhost:7273/settings.html" style="color:#ffd580">http://localhost:7273/settings.html</a> öffnen.<br><br>
+    In OBS Browser Source die URL auf <code>http://localhost:7273/index.html</code> setzen.
+  </div>
+
+  <h1>BSPlus Overlay</h1>
+  <p class="subtitle">Einstellungen für OBS Browser Source</p>
+
+  <!-- Theme -->
+  <div class="section">
+    <div class="section-title">Theme</div>
+    <div class="theme-tiles">
+
+      <div class="theme-tile" data-theme="minimal">
+        <div class="theme-preview preview-minimal">
+          <div class="prev-score">987,654</div>
+          <div class="prev-bar"></div>
+        </div>
+        <div class="theme-label">Minimal</div>
+      </div>
+
+      <div class="theme-tile" data-theme="neon">
+        <div class="theme-preview preview-neon">
+          <div class="prev-score">987,654</div>
+          <div class="prev-bar"></div>
+        </div>
+        <div class="theme-label">Neon</div>
+      </div>
+
+      <div class="theme-tile" data-theme="glass">
+        <div class="theme-preview preview-glass">
+          <div class="prev-score">987,654</div>
+          <div class="prev-bar"></div>
+        </div>
+        <div class="theme-label">Glass</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- WebSocket Port -->
+  <div class="section">
+    <div class="section-title">BSPlus WebSocket</div>
+    <label for="input-ws-port">Port (Standard: 2947)</label>
+    <input type="number" id="input-ws-port" value="2947" min="1024" max="65535">
+  </div>
+
+  <!-- Save -->
+  <div class="save-row">
+    <button id="btn-save">Speichern</button>
+    <span id="save-status">Gespeichert!</span>
+  </div>
+
+  <!-- Overlay link -->
+  <div class="overlay-link-row">
+    <a id="link-overlay" href="index.html" target="_blank">→ Overlay öffnen (index.html)</a>
+  </div>
+
+  <script src="js/settings.js"></script>
+  <script>
+    if (window.location.protocol === 'file:') {
+      document.getElementById('cors-warning').style.display = 'block';
+    }
+  </script>
+</body>
+</html>

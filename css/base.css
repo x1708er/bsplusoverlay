@@ -1,0 +1,316 @@
+/* base.css — layout & animations (theme-independent) */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background: transparent;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* =====================
+   Overlay Layout
+   ===================== */
+
+#overlay-playing {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 380px;
+  pointer-events: none;
+}
+
+#overlay-menu {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  pointer-events: none;
+}
+
+/* =====================
+   Player Banner (Menu)
+   ===================== */
+
+#player-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px 10px 12px;
+  border-radius: 12px;
+  animation: fadeIn 0.3s ease both;
+}
+
+#player-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.12);
+}
+
+#player-banner-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#player-name {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+#player-banner-sub {
+  font-size: 0.72rem;
+  opacity: 0.5;
+  letter-spacing: 0.04em;
+}
+
+/* =====================
+   Song Info Card
+   ===================== */
+
+#song-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+}
+
+#cover-art {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: #333;
+}
+
+#song-info {
+  flex: 1;
+  overflow: hidden;
+}
+
+#song-name {
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#song-artist {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#song-mapper {
+  font-size: 0.72rem;
+  opacity: 0.6;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#song-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+#difficulty-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#bpm {
+  font-size: 0.72rem;
+  opacity: 0.7;
+}
+
+/* =====================
+   Progress Bar
+   ===================== */
+
+#progress-container {
+  height: 5px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.15);
+}
+
+#progress-bar {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  transition: width 0.25s linear;
+}
+
+#time-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.68rem;
+  opacity: 0.6;
+  padding: 0 2px;
+}
+
+/* =====================
+   Score Panel
+   ===================== */
+
+#score-panel {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+#score {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  flex: 1;
+}
+
+#accuracy {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+#combo-miss {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-size: 0.78rem;
+}
+
+/* =====================
+   Health Bar
+   ===================== */
+
+#health-container {
+  height: 5px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.15);
+}
+
+#health-bar {
+  height: 100%;
+  width: 100%;
+  border-radius: 3px;
+  transition: width 0.1s linear;
+  background: #4caf50;
+}
+
+/* =====================
+   BeatLeader Panel
+   ===================== */
+
+#beatleader-panel {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+}
+
+#beatleader-panel .bl-label {
+  opacity: 0.6;
+  font-size: 0.68rem;
+  margin-bottom: 1px;
+}
+
+#beatleader-panel .bl-value {
+  font-weight: 700;
+}
+
+/* =====================
+   Pause Indicator
+   ===================== */
+
+#pause-indicator {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* =====================
+   Connection Warning
+   ===================== */
+
+#connection-warning {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  background: rgba(220, 50, 50, 0.85);
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+/* =====================
+   Dev link
+   ===================== */
+
+#dev-link {
+  position: fixed;
+  bottom: 6px;
+  right: 10px;
+  font-size: 0.65rem;
+  opacity: 0.4;
+  color: #fff;
+  text-decoration: none;
+}
+
+#dev-link:hover { opacity: 0.9; }
+
+/* =====================
+   Animations
+   ===================== */
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#overlay-playing:not(.hidden) {
+  animation: fadeIn 0.3s ease both;
+}
