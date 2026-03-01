@@ -45,6 +45,30 @@ html, body {
 }
 
 /* =====================
+   Position Overrides
+   ===================== */
+
+body.pos-bottom-right #overlay-playing,
+body.pos-bottom-right #overlay-menu {
+  left: unset;
+  right: 20px;
+}
+
+body.pos-top-left #overlay-playing,
+body.pos-top-left #overlay-menu {
+  bottom: unset;
+  top: 20px;
+}
+
+body.pos-top-right #overlay-playing,
+body.pos-top-right #overlay-menu {
+  bottom: unset;
+  left: unset;
+  top: 20px;
+  right: 20px;
+}
+
+/* =====================
    Player Banner (Menu)
    ===================== */
 
@@ -358,6 +382,234 @@ html, body {
   font-size: 0.75rem;
   padding: 6px 12px;
   border-radius: 6px;
+}
+
+/* =====================
+   In-Overlay Settings
+   ===================== */
+
+/* Transparent hover detection zone — same corner as overlay */
+#ov-hover-zone {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 380px;
+  height: 420px;
+  pointer-events: auto;
+  z-index: 100;
+}
+
+body.pos-bottom-right #ov-hover-zone { left: unset; right: 20px; }
+body.pos-top-left    #ov-hover-zone  { bottom: unset; top: 20px; }
+body.pos-top-right   #ov-hover-zone  { bottom: unset; left: unset; top: 20px; right: 20px; }
+
+/* Gear trigger — at the "inner" corner of the zone */
+#ov-settings-trigger {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 26px;
+  height: 26px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 50%;
+  color: rgba(255,255,255,0.85);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.15s;
+}
+
+#ov-settings-trigger:hover { background: rgba(0, 0, 0, 0.78); }
+
+body.ov-hover #ov-settings-trigger { opacity: 1; }
+
+/* Right-side positions: trigger on the left edge of zone */
+body.pos-bottom-right #ov-settings-trigger,
+body.pos-top-right    #ov-settings-trigger { right: unset; left: 0; }
+
+/* Top positions: trigger on top edge of zone */
+body.pos-top-left  #ov-settings-trigger,
+body.pos-top-right #ov-settings-trigger { bottom: unset; top: 0; }
+
+/* Settings panel — overlays the overlay area */
+#ov-settings-panel {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  width: 380px;
+  max-height: 82vh;
+  overflow-y: auto;
+  background: rgba(8, 8, 18, 0.97);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: #e0e0ec;
+  font-family: 'Segoe UI', Arial, sans-serif;
+  font-size: 12px;
+  z-index: 300;
+  pointer-events: auto;
+  transform: translateY(14px);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), opacity 0.18s, visibility 0s 0.22s;
+}
+
+body.pos-bottom-right #ov-settings-panel { left: unset; right: 20px; }
+body.pos-top-left     #ov-settings-panel { bottom: unset; top: 20px; transform: translateY(-14px); }
+body.pos-top-right    #ov-settings-panel { bottom: unset; left: unset; top: 20px; right: 20px; transform: translateY(-14px); }
+
+/* Open state — unified selector to beat position-specific specificity */
+#ov-settings-panel.open,
+body.pos-top-left  #ov-settings-panel.open,
+body.pos-top-right #ov-settings-panel.open {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), opacity 0.18s;
+}
+
+#ov-settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+#ov-settings-close {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+
+#ov-settings-close:hover { color: #fff; }
+
+#ov-settings-body { padding: 8px 12px 4px; }
+
+#ov-settings-footer {
+  padding: 6px 12px 10px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 4px;
+}
+
+#ov-settings-footer a {
+  font-size: 0.72rem;
+  color: rgba(96,176,255,0.7);
+  text-decoration: none;
+}
+
+#ov-settings-footer a:hover { color: #60b0ff; text-decoration: underline; }
+
+/* Panel section layout */
+.ov-section { margin-bottom: 10px; }
+
+.ov-section-title {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(180,180,200,0.45);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Theme tiles */
+.ov-theme-tiles { display: flex; gap: 8px; }
+
+.ov-theme-tile {
+  flex: 1;
+  border-radius: 7px;
+  border: 2px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.18s;
+  user-select: none;
+}
+
+.ov-theme-tile:hover         { border-color: rgba(255,255,255,0.25); }
+.ov-theme-tile.ov-selected   { border-color: #60b0ff; }
+
+.ov-theme-preview { height: 36px; }
+.ov-prev-minimal { background: #0f0f14; }
+.ov-prev-neon    { background: #050514; }
+.ov-prev-glass   { background: linear-gradient(135deg, #1a2a4a 0%, #2d1a4a 100%); }
+
+.ov-tile-label {
+  text-align: center;
+  font-size: 0.68rem;
+  padding: 4px;
+  color: rgba(200,200,220,0.65);
+  background: rgba(255,255,255,0.03);
+}
+
+.ov-theme-tile.ov-selected .ov-tile-label { color: #60b0ff; }
+
+/* Position tiles */
+.ov-pos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.ov-pos-tile {
+  border-radius: 6px;
+  border: 2px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: border-color 0.18s;
+  user-select: none;
+  padding: 5px 6px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: rgba(200,200,220,0.65);
+}
+
+.ov-pos-tile:hover       { border-color: rgba(255,255,255,0.25); }
+.ov-pos-tile.ov-selected { border-color: #60b0ff; color: #60b0ff; }
+
+/* Scale slider */
+#ov-scale {
+  width: 100%;
+  accent-color: #60b0ff;
+  cursor: pointer;
+  margin-top: 4px;
+  display: block;
+}
+
+/* Checkbox grid */
+.ov-check-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 5px 8px;
+}
+
+.ov-check-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: rgba(220,220,240,0.75);
+}
+
+.ov-check-label input[type="checkbox"] {
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+  accent-color: #60b0ff;
+  flex-shrink: 0;
 }
 
 /* =====================
