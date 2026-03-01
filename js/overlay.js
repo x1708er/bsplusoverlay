@@ -60,6 +60,7 @@ let songTimerInterval = null;
 let songStartTime = 0;
 let songElapsed = 0;
 let isPaused = false;
+let pbScore = null;
 
 // --- Career counter state ---
 let sessionHits = 0;
@@ -177,6 +178,7 @@ function applyLayoutConfig() {
   setVisible('time-row',           cfg('showProgress'));
   setVisible('score-panel',        cfg('showScorePanel'));
   setVisible('health-container',   cfg('showHealthBar'));
+  if (!cfg('showPBDelta')) setVisible('pb-delta', false);
 }
 
 // --- BSPlus event handlers ---
@@ -284,11 +286,21 @@ BSPlusWS.onMapInfo = async (info) => {
   setVisible('beatleader-panel', false);
   setVisible('bl-history-panel', false);
 
+  // Reset PB delta
+  pbScore = null;
+  setVisible('pb-delta', false);
+  const pbEl = el('pb-delta');
+  if (pbEl) pbEl.classList.remove('pb-ahead', 'pb-behind');
+
   // Fetch BeatLeader scores
   const levelId = info.level_id || '';
   const difficulty = info.difficulty || '';
   if (BeatLeader.getPlayerId()) {
     const blScores = await BeatLeader.fetchMapScores(levelId, difficulty);
+    // Find personal best (highest modifiedScore across all attempts)
+    if (blScores.length > 0) {
+      pbScore = Math.max(...blScores.map(s => s.modifiedScore || 0)) || null;
+    }
     const blScore = blScores[0] || null;
     if (blScore) {
       const cfg = key => Config.get(key) !== false;
@@ -365,6 +377,19 @@ BSPlusWS.onScore = (score) => {
     songElapsed = time;
     songStartTime = Date.now() - time * 1000;
   }
+
+  // PB delta — compare current score against personal best pace
+  if (pbScore && Config.get('showPBDelta') !== false && duration > 0 && time > 0) {
+    const progress = Math.min(1, time / duration);
+    const delta = rawScore - progress * pbScore;
+    const pbEl = el('pb-delta');
+    if (pbEl) {
+      pbEl.classList.toggle('pb-ahead',  delta >= 0);
+      pbEl.classList.toggle('pb-behind', delta < 0);
+      pbEl.textContent = (delta >= 0 ? '+' : '') + Math.round(delta).toLocaleString() + ' vs PB';
+      setVisible('pb-delta', true);
+    }
+  }
 };
 
 BSPlusWS.onPause = () => {
@@ -422,6 +447,7 @@ function buildSettingsPanelHTML() {
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-progress"> Fortschritt</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-score"> Score</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-health"> Health</label>
+        <label class="ov-check-label"><input type="checkbox" id="ov-chk-pbdelta"> PB-Delta</label>
       </div>
     </div>
 
@@ -466,6 +492,7 @@ function initOverlaySettings() {
     { id: 'ov-chk-bl-date',   key: 'blShowDate'      },
     { id: 'ov-chk-bl-maxpp',  key: 'blShowMaxPP'     },
     { id: 'ov-chk-bl-ppgain', key: 'blShowPPGain'    },
+    { id: 'ov-chk-pbdelta',   key: 'showPBDelta'     },
   ];
 
   function syncPanelValues() {
