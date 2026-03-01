@@ -77,6 +77,11 @@ let prevMissCount = 0;
 let prevCombo = 0;
 let sessionActive = false;
 
+// --- Session stats state ---
+let sessionMapsPlayed = 0;
+let sessionFCs = 0;
+let sessionBestCombo = 0;
+
 function updateCareerStatsDisplay() {
   const enabled = Config.get('statsEnabled') !== false;
   setVisible('career-stats', enabled);
@@ -86,6 +91,15 @@ function updateCareerStatsDisplay() {
   setText('stat-hits', hits.toLocaleString());
   setText('stat-misses', misses.toLocaleString());
   setText('stat-total', (hits + misses).toLocaleString());
+}
+
+function updateSessionStats() {
+  const show = Config.get('showSessionStats') !== false;
+  setVisible('session-stats-panel', show);
+  if (!show) return;
+  setText('session-maps', sessionMapsPlayed);
+  setText('session-fcs', sessionFCs);
+  setText('session-combo', sessionBestCombo + 'x');
 }
 
 async function flushSession() {
@@ -165,6 +179,10 @@ function captureAndAddToHistory() {
     health:     lastScoreData.health,
     ts:         Date.now(),
   });
+  sessionMapsPlayed++;
+  const isFail = lastScoreData.health <= 0.001;
+  if (lastScoreData.missCount === 0 && !isFail) sessionFCs++;
+  updateSessionStats();
   while (songHistory.length > maxCount) songHistory.pop();
   songWasPlayed = false;
   lastScoreData = null;
@@ -297,6 +315,7 @@ function applyLayoutConfig() {
   setVisible('time-row',           cfg('showProgress'));
   setVisible('score-panel',        cfg('showScorePanel'));
   setVisible('health-container',   cfg('showHealthBar'));
+  setVisible('session-stats-panel', cfg('showSessionStats'));
   if (!cfg('showPBDelta')) setVisible('pb-delta', false);
   if (!cfg('showAccGraph')) setVisible('acc-graph', false);
 }
@@ -495,6 +514,8 @@ BSPlusWS.onScore = (score) => {
   }
   const healthBar = el('health-bar');
   if (healthBar) healthBar.classList.toggle('warning', health < 0.25);
+
+  if (combo > sessionBestCombo) sessionBestCombo = combo;
 
   prevMissCount = missCount;
   prevCombo = combo;
@@ -821,6 +842,7 @@ Config.ready.then(() => {
   if (customStyle) customStyle.textContent = Config.get('customCSS') || '';
   applyLayoutConfig();
   updateCareerStatsDisplay();
+  updateSessionStats();
   initOverlaySettings();
   BSPlusWS.connect();
 });

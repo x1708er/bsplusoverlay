@@ -47,7 +47,8 @@ body {
   border: 1px solid var(--border);
 }
 
-#career-stats {
+#career-stats,
+#session-stats-panel {
   background: var(--bg-score);
   border: 1px solid var(--border);
 }

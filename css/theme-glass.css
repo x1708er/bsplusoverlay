@@ -18,7 +18,8 @@ body {
 #beatleader-panel,
 #bl-history-panel,
 #player-banner,
-#career-stats {
+#career-stats,
+#session-stats-panel {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(16px) saturate(180%);

@@ -14,6 +14,7 @@ const Config = (() => {
     overlayPosition: 'bottom-left', overlayScale: 1,
     showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true, showPBDelta: true, showAccGraph: true,
     showSongHistory: true, songHistoryCount: 8, songHistoryScroll: true, songHistoryScrollSpeed: 3000, songHistoryVisibleRows: 3,
+    showSessionStats: true,
     customCSS: '',
   };
 

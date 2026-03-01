@@ -82,7 +82,8 @@ body {
   box-shadow: 0 0 16px rgba(0, 200, 255, 0.15);
 }
 
-#career-stats {
+#career-stats,
+#session-stats-panel {
   background: var(--bg-card);
   border: 1px solid var(--border-pink);
   box-shadow: 0 0 12px rgba(255, 45, 120, 0.1);

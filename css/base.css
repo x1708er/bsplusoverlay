@@ -145,6 +145,16 @@ body.pos-top-right #overlay-menu {
 }
 
 /* =====================
+   Session Stats (Menu)
+   ===================== */
+
+#session-stats-panel {
+  display: flex;
+  padding: 8px 12px;
+  border-radius: 10px;
+}
+
+/* =====================
    Song Info Card
    ===================== */
 

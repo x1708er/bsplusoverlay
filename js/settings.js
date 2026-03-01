@@ -7,7 +7,8 @@
 function loadSettings() {
   document.getElementById('input-ws-host').value = Config.get('wsHost');
   document.getElementById('input-ws-port').value = Config.get('wsPort');
-  document.getElementById('chk-stats-enabled').checked = Config.get('statsEnabled') !== false;
+  document.getElementById('chk-stats-enabled').checked  = Config.get('statsEnabled')    !== false;
+  document.getElementById('chk-session-stats').checked  = Config.get('showSessionStats') !== false;
   document.getElementById('chk-bl-pp').checked    = Config.get('blShowPP')    !== false;
   document.getElementById('chk-bl-acc').checked   = Config.get('blShowAcc')   !== false;
   document.getElementById('chk-bl-stars').checked = Config.get('blShowStars') !== false;
@@ -63,7 +64,8 @@ function selectTheme(theme, save = true) {
 function saveAll() {
   const wsHost = document.getElementById('input-ws-host').value.trim() || 'localhost';
   const wsPort = parseInt(document.getElementById('input-ws-port').value.trim(), 10) || 2947;
-  const statsEnabled = document.getElementById('chk-stats-enabled').checked;
+  const statsEnabled    = document.getElementById('chk-stats-enabled').checked;
+  const showSessionStats = document.getElementById('chk-session-stats').checked;
   const selectedTile = document.querySelector('.theme-tile.selected');
   const theme = selectedTile ? selectedTile.dataset.theme : 'minimal';
   const blShowPP    = document.getElementById('chk-bl-pp').checked;
@@ -94,7 +96,7 @@ function saveAll() {
   const customCSS      = document.getElementById('input-custom-css').value;
 
   Config.save({
-    wsHost, wsPort, theme, statsEnabled,
+    wsHost, wsPort, theme, statsEnabled, showSessionStats,
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain, blShowHistory, blHistoryCount,
     showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
     overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph, customCSS,
