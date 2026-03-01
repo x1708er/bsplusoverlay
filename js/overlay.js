@@ -119,6 +119,27 @@ function formatTime(seconds) {
   return `${m}:${String(s % 60).padStart(2, '0')}`;
 }
 
+function renderBLHistory(scores) {
+  const list = el('bl-history-list');
+  if (!list) return;
+  const show = Config.get('blShowHistory') !== false;
+  const count = Math.max(1, Math.min(10, parseInt(Config.get('blHistoryCount'), 10) || 5));
+  if (!show || scores.length === 0) {
+    setVisible('bl-history-panel', false);
+    return;
+  }
+  list.innerHTML = scores.slice(0, count).map(s => `
+    <div class="bl-hist-row">
+      <span class="bl-hist-date">${s.timeago || '—'}</span>
+      <span class="bl-hist-acc">${s.accuracy ? s.accuracy + '%' : '—'}</span>
+      <span class="bl-hist-fc${s.fc ? ' is-fc' : ''}">${s.fc ? 'FC' : s.misses + ' miss'}</span>
+      <span class="bl-hist-pp">${s.pp ? s.pp.toFixed(2) + 'pp' : '—'}</span>
+      <span class="bl-hist-rank">${s.rank ? '#' + s.rank : '—'}</span>
+    </div>
+  `).join('');
+  setVisible('bl-history-panel', true);
+}
+
 // --- BSPlus event handlers ---
 BSPlusWS.onConnectionChange = (connected) => {
   setVisible('connection-warning', !connected);
@@ -128,10 +149,21 @@ async function loadPlayerAvatar(playerId) {
   if (!playerId) return;
   const info = await BeatLeader.fetchPlayerInfo(playerId);
   const avatarEl = el('player-avatar');
-  if (!avatarEl || !info?.avatar) return;
-  const base = `${window.location.protocol}//${window.location.hostname}:${window.location.port || 7273}`;
-  avatarEl.onerror = () => { avatarEl.removeAttribute('src'); };
-  avatarEl.src = `${base}/img?url=${encodeURIComponent(info.avatar)}`;
+  if (avatarEl && info?.avatar) {
+    const base = `${window.location.protocol}//${window.location.hostname}:${window.location.port || 7273}`;
+    avatarEl.onerror = () => { avatarEl.removeAttribute('src'); };
+    avatarEl.src = `${base}/img?url=${encodeURIComponent(info.avatar)}`;
+  }
+  if (info?.rank) {
+    const parts = [`#${info.rank.toLocaleString()}`];
+    if (info.countryRank && info.country)
+      parts.push(`#${info.countryRank.toLocaleString()} ${info.country.toUpperCase()}`);
+    else if (info.country)
+      parts.push(info.country.toUpperCase());
+    if (info.pp) parts.push(`${Math.round(info.pp).toLocaleString()} pp`);
+    setText('player-bl-stats', parts.join(' · '));
+    setVisible('player-bl-stats', true);
+  }
 }
 
 BSPlusWS.onHandshake = ({ playerName, playerId }) => {
@@ -209,20 +241,35 @@ BSPlusWS.onMapInfo = async (info) => {
   setText('miss', '0');
   setProgress('health-bar', 1);
 
-  // Hide BeatLeader panel until we have data
+  // Hide BeatLeader panels until we have data
   setVisible('beatleader-panel', false);
+  setVisible('bl-history-panel', false);
 
-  // Fetch BeatLeader score
+  // Fetch BeatLeader scores
   const levelId = info.level_id || '';
   const difficulty = info.difficulty || '';
   if (BeatLeader.getPlayerId()) {
-    const blScore = await BeatLeader.fetchScoreForMap(levelId, difficulty);
+    const blScores = await BeatLeader.fetchMapScores(levelId, difficulty);
+    const blScore = blScores[0] || null;
     if (blScore) {
-      setText('bl-pp', blScore.pp ? `${blScore.pp.toFixed(2)}pp` : '—');
-      setText('bl-acc', blScore.accuracy ? `${blScore.accuracy}%` : '—');
-      setText('bl-rank', blScore.rank ? `#${blScore.rank}` : '—');
+      const cfg = key => Config.get(key) !== false;
+      setVisible('bl-item-pp',    cfg('blShowPP')    && blScore.pp > 0);
+      setVisible('bl-item-acc',   cfg('blShowAcc'));
+      setVisible('bl-item-rank',  cfg('blShowRank'));
+      setVisible('bl-item-stars', cfg('blShowStars') && !!blScore.stars);
+      setVisible('bl-item-fc',    cfg('blShowFC'));
+      setVisible('bl-item-date',  cfg('blShowDate') && !!blScore.timeago);
+
+      setText('bl-pp',    blScore.pp       ? `${blScore.pp.toFixed(2)}pp`            : '—');
+      setText('bl-acc',   blScore.accuracy ? `${blScore.accuracy}%`                  : '—');
+      setText('bl-rank',  blScore.rank     ? `#${blScore.rank}`                      : '—');
+      setText('bl-stars', blScore.stars    ? `★ ${Number(blScore.stars).toFixed(2)}` : '—');
+      setText('bl-fc',    blScore.fc       ? 'FC' : `${blScore.misses} miss`);
+      setText('bl-date',  blScore.timeago  || '—');
+
       setVisible('beatleader-panel', true);
     }
+    renderBLHistory(blScores);
   }
 };
 

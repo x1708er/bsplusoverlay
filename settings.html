@@ -302,6 +302,27 @@
       border-color: rgba(220, 80, 80, 0.5);
     }
 
+    /* --- BeatLeader field grid --- */
+    .bl-field-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px 24px;
+    }
+
+    /* --- BeatLeader history count --- */
+    .bl-count-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: rgba(220,220,240,0.8);
+    }
+
+    .bl-count-row input[type="number"] {
+      width: 70px;
+    }
+
     /* --- CORS warning --- */
     #cors-warning {
       display: none;
@@ -405,6 +426,32 @@
         <input type="checkbox" id="chk-stats-enabled" checked>
         Stats im Overlay anzeigen
       </label>
+    </div>
+  </div>
+
+  <!-- BeatLeader Fields -->
+  <div class="section">
+    <div class="section-title">BeatLeader Felder</div>
+    <p style="font-size:0.8rem;color:rgba(200,200,220,0.55);margin-bottom:12px;line-height:1.5">
+      Welche Felder im BeatLeader-Panel angezeigt werden (nur wenn ein Score gefunden wird).
+    </p>
+    <div class="bl-field-grid">
+      <label class="toggle-label"><input type="checkbox" id="chk-bl-pp">   PP</label>
+      <label class="toggle-label"><input type="checkbox" id="chk-bl-acc">  Accuracy</label>
+      <label class="toggle-label"><input type="checkbox" id="chk-bl-stars"> Sterne (★)</label>
+      <label class="toggle-label"><input type="checkbox" id="chk-bl-rank"> Rank</label>
+      <label class="toggle-label"><input type="checkbox" id="chk-bl-fc">   FC / Misses</label>
+      <label class="toggle-label"><input type="checkbox" id="chk-bl-date"> Datum gesetzt</label>
+    </div>
+
+    <div class="bl-history-row" style="margin-top: 16px">
+      <label class="toggle-label">
+        <input type="checkbox" id="chk-bl-history"> Score-Verlauf anzeigen
+      </label>
+      <div class="bl-count-row">
+        <label for="input-bl-history-count">Anzahl Einträge</label>
+        <input type="number" id="input-bl-history-count" min="1" max="10" value="5">
+      </div>
     </div>
   </div>
 

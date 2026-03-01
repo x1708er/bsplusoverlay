@@ -4,5 +4,13 @@
   "wsPort": 2947,
   "totalHits": 0,
   "totalMisses": 0,
-  "statsEnabled": true
+  "statsEnabled": true,
+  "blShowPP": true,
+  "blShowAcc": true,
+  "blShowRank": true,
+  "blShowStars": true,
+  "blShowFC": true,
+  "blShowDate": true,
+  "blShowHistory": true,
+  "blHistoryCount": 5
 }

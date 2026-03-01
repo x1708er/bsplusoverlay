@@ -25,7 +25,8 @@ body {
   border: 1px solid var(--border);
 }
 
-#beatleader-panel {
+#beatleader-panel,
+#bl-history-panel {
   background: var(--bg-bl);
   border: 1px solid var(--border);
 }

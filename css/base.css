@@ -83,6 +83,13 @@ html, body {
   letter-spacing: 0.04em;
 }
 
+#player-bl-stats {
+  font-size: 0.68rem;
+  opacity: 0.55;
+  margin-top: 1px;
+  letter-spacing: 0.02em;
+}
+
 /* =====================
    Career Stats (Menu)
    ===================== */
@@ -267,9 +274,9 @@ html, body {
 
 #beatleader-panel {
   display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 6px 12px;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 8px 12px;
   border-radius: 8px;
   font-size: 0.78rem;
 }
@@ -283,6 +290,39 @@ html, body {
 #beatleader-panel .bl-value {
   font-weight: 700;
 }
+
+/* =====================
+   BeatLeader Score History
+   ===================== */
+
+#bl-history-panel {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+}
+
+#bl-history-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bl-hist-row {
+  display: grid;
+  grid-template-columns: 54px 60px 58px 62px 1fr;
+  gap: 0 8px;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.bl-hist-row:last-child { border-bottom: none; }
+
+.bl-hist-date { opacity: 0.45; }
+.bl-hist-acc  { font-weight: 600; }
+.bl-hist-fc   { opacity: 0.75; }
+.bl-hist-fc.is-fc { color: #4caf50; }
+.bl-hist-pp   { opacity: 0.85; }
+.bl-hist-rank { opacity: 0.55; text-align: right; }
 
 /* =====================
    Pause Indicator
@@ -380,6 +420,7 @@ html, body {
 #overlay-playing.entering > *:nth-child(4) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 115ms; }
 #overlay-playing.entering > *:nth-child(5) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 145ms; }
 #overlay-playing.entering > *:nth-child(6) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 170ms; }
+#overlay-playing.entering > *:nth-child(7) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 195ms; }
 
 /* Menu overlay entrance */
 #overlay-menu:not(.hidden) {

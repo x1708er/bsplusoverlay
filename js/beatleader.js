@@ -45,46 +45,99 @@ const BeatLeader = (() => {
   }
 
   /**
-   * Find score for a specific map level_id from the player's recent scores.
+   * Fetch all of the player's scores for a specific map, sorted by date desc.
+   * Works for both ranked and unranked maps.
    * @param {string} levelId - BSPlus level_id (e.g. "custom_level_ABCD1234...")
-   * @param {string} difficulty - difficulty string (Easy/Normal/Hard/Expert/ExpertPlus)
-   * @returns {object|null}
+   * @param {string} difficulty - difficulty string from BSPlus (e.g. "ExpertPlus")
+   * @param {number} count - how many recent player scores to search through (default 100)
+   * @returns {object[]}
    */
-  async function fetchScoreForMap(levelId, difficulty) {
+  async function fetchMapScores(levelId, difficulty, count = 100) {
     const playerId = getPlayerId();
-    if (!playerId || !levelId || !BASE) return null;
+    if (!playerId || !levelId || !BASE) return [];
 
-    // Normalize level hash: BSPlus uses "custom_level_HASH" format
     const hashMatch = levelId.match(/custom_level_([0-9A-Fa-f]+)/i);
     const hash = hashMatch ? hashMatch[1].toLowerCase() : null;
+    if (!hash) return [];
 
     try {
-      const url = `${BASE}/player/${encodeURIComponent(playerId)}/scores?sortBy=date&order=desc&count=10`;
+      // Fetch player's recent scores.
+      // type=0 includes all score types (ranked + unranked).
+      const url = `${BASE}/player/${encodeURIComponent(playerId)}/scores` +
+        `?sortBy=date&order=desc&count=${count}&type=0`;
+      console.log('[BL] fetching:', url);
       const res = await fetch(url);
-      if (!res.ok) return null;
+      console.log('[BL] status:', res.status);
+      if (!res.ok) return [];
       const data = await res.json();
-      const scores = data.data || data.scores || [];
+      const allScores = data.data || data.scores || [];
+      console.log('[BL] total scores returned:', allScores.length);
+      const normalizedDiff = normalizeDifficulty(difficulty);
 
-      const match = scores.find(s => {
-        const leaderboard = s.leaderboard || s.song || {};
-        const songHash = (leaderboard.songHash || leaderboard.hash || '').toLowerCase();
-        const diff = (leaderboard.difficulty?.difficultyName || leaderboard.difficultyName || '').toLowerCase();
-        const normalizedDiff = normalizeDifficulty(difficulty);
-        return hash && songHash === hash && diff === normalizedDiff;
+      // hash is nested at leaderboard.song.hash (not leaderboard.songHash)
+      const matched = allScores.filter(s => {
+        const song = s.leaderboard?.song || {};
+        const songHash = (song.hash || '').toLowerCase();
+        const diff = normalizeDifficulty(s.leaderboard?.difficulty?.difficultyName || '');
+        return songHash === hash && diff === normalizedDiff;
       });
+      console.log('[BL] matched for this map:', matched.length);
 
-      if (!match) return null;
-
-      return {
-        pp: match.pp || 0,
-        accuracy: match.accuracy ? (match.accuracy * 100).toFixed(2) : null,
-        rank: match.rank || null,
-        timeset: match.timeset || match.timeSet || null,
-        modifiedScore: match.modifiedScore || match.score || null,
-      };
-    } catch {
-      return null;
+      return matched.map(s => {
+        const diffData = s.leaderboard?.difficulty || {};
+        // timeset is unix timestamp in seconds, not an ISO string
+        const tsMs = s.timeset ? parseInt(s.timeset) * 1000 : null;
+        return {
+          pp: s.pp || 0,
+          accuracy: s.accuracy ? (s.accuracy * 100).toFixed(2) : null,
+          rank: s.rank || null,
+          modifiedScore: s.modifiedScore || s.baseScore || null,
+          stars: diffData.stars || null,
+          maxPP: diffData.maxPP || null,
+          fc: !!(s.fullCombo || s.fc),
+          misses: (s.missedNotes || 0) + (s.badCuts || 0) + (s.bombCuts || 0),
+          maxCombo: s.maxCombo || null,
+          timeset: tsMs,
+          timeago: timeAgo(tsMs),
+        };
+      });
+    } catch (e) {
+      console.error('[BL] fetchMapScores error:', e);
+      return [];
     }
+  }
+
+  async function fetchScoreForMap(levelId, difficulty) {
+    const scores = await fetchMapScores(levelId, difficulty, 10);
+    return scores[0] || null;
+  }
+
+  function timeAgo(isoString) {
+    if (!isoString) return null;
+    const diff = Date.now() - new Date(isoString).getTime();
+    const hours = Math.floor(diff / 3600000);
+    if (hours < 1) return 'gerade';
+    if (hours < 24) return `vor ${hours}h`;
+    const days = Math.floor(diff / 86400000);
+    if (days < 7) return `vor ${days}d`;
+    if (days < 30) return `vor ${Math.floor(days / 7)}w`;
+    if (days < 365) return `vor ${Math.floor(days / 30)}mo`;
+    return `vor ${Math.floor(days / 365)}y`;
+  }
+
+  // Converts any BSPlus difficulty string to BeatLeader's canonical form
+  // used in the leaderboard/hash endpoint (e.g. "ExpertPlus", "Expert", "Hard")
+  function toBLDifficulty(diff) {
+    if (!diff) return '';
+    const map = {
+      'expertplus': 'ExpertPlus',
+      'expert+':    'ExpertPlus',
+      'expert':     'Expert',
+      'hard':       'Hard',
+      'normal':     'Normal',
+      'easy':       'Easy',
+    };
+    return map[diff.toLowerCase()] || diff;
   }
 
   function normalizeDifficulty(diff) {
@@ -104,6 +157,7 @@ const BeatLeader = (() => {
     setPlayerId,
     getPlayerId,
     fetchPlayerInfo,
+    fetchMapScores,
     fetchScoreForMap,
   };
 })();

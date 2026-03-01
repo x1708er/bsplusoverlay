@@ -60,18 +60,35 @@
 
     <!-- BeatLeader panel (hidden until score found) -->
     <div id="beatleader-panel" class="hidden">
-      <div>
+      <div id="bl-item-pp">
         <div class="bl-label">PP</div>
         <div class="bl-value" id="bl-pp">—</div>
       </div>
-      <div>
+      <div id="bl-item-acc">
         <div class="bl-label">Acc</div>
         <div class="bl-value" id="bl-acc">—</div>
       </div>
-      <div>
+      <div id="bl-item-stars">
+        <div class="bl-label">Stars</div>
+        <div class="bl-value" id="bl-stars">—</div>
+      </div>
+      <div id="bl-item-rank">
         <div class="bl-label">Rank</div>
         <div class="bl-value" id="bl-rank">—</div>
       </div>
+      <div id="bl-item-fc">
+        <div class="bl-label">FC</div>
+        <div class="bl-value" id="bl-fc">—</div>
+      </div>
+      <div id="bl-item-date">
+        <div class="bl-label">Set</div>
+        <div class="bl-value" id="bl-date">—</div>
+      </div>
+    </div>
+
+    <!-- BeatLeader score history -->
+    <div id="bl-history-panel" class="hidden">
+      <div id="bl-history-list"></div>
     </div>
 
   </div>
@@ -83,6 +100,7 @@
       <div id="player-banner-info">
         <div id="player-name"></div>
         <div id="player-banner-sub">Beat Saber</div>
+        <div id="player-bl-stats" class="hidden"></div>
       </div>
     </div>
     <div id="career-stats">

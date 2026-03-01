@@ -4,7 +4,13 @@
  * Falls back to defaults silently when running from file:// or server unreachable.
  */
 const Config = (() => {
-  const DEFAULTS = { theme: 'minimal', wsHost: 'localhost', wsPort: 2947, totalHits: 0, totalMisses: 0, statsEnabled: true };
+  const DEFAULTS = {
+    theme: 'minimal', wsHost: 'localhost', wsPort: 2947,
+    totalHits: 0, totalMisses: 0, statsEnabled: true,
+    blShowPP: true, blShowAcc: true, blShowRank: true,
+    blShowStars: true, blShowFC: true, blShowDate: false,
+    blShowHistory: true, blHistoryCount: 5,
+  };
 
   let values = { ...DEFAULTS };
 

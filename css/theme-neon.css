@@ -64,7 +64,8 @@ body {
   box-shadow: 0 0 6px rgba(0, 230, 118, 0.5);
 }
 
-#beatleader-panel {
+#beatleader-panel,
+#bl-history-panel {
   background: var(--bg-bl);
   border: 1px solid rgba(180, 74, 255, 0.35);
   box-shadow: 0 0 12px rgba(180, 74, 255, 0.1);

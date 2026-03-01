@@ -8,6 +8,14 @@ function loadSettings() {
   document.getElementById('input-ws-host').value = Config.get('wsHost');
   document.getElementById('input-ws-port').value = Config.get('wsPort');
   document.getElementById('chk-stats-enabled').checked = Config.get('statsEnabled') !== false;
+  document.getElementById('chk-bl-pp').checked    = Config.get('blShowPP')    !== false;
+  document.getElementById('chk-bl-acc').checked   = Config.get('blShowAcc')   !== false;
+  document.getElementById('chk-bl-stars').checked = Config.get('blShowStars') !== false;
+  document.getElementById('chk-bl-rank').checked  = Config.get('blShowRank')  !== false;
+  document.getElementById('chk-bl-fc').checked    = Config.get('blShowFC')    !== false;
+  document.getElementById('chk-bl-date').checked  = Config.get('blShowDate')  !== false;
+  document.getElementById('chk-bl-history').checked       = Config.get('blShowHistory') !== false;
+  document.getElementById('input-bl-history-count').value = Config.get('blHistoryCount') || 5;
   selectTheme(Config.get('theme'), false);
   updateStatsDisplay();
 }
@@ -29,8 +37,17 @@ function saveAll() {
   const statsEnabled = document.getElementById('chk-stats-enabled').checked;
   const selectedTile = document.querySelector('.theme-tile.selected');
   const theme = selectedTile ? selectedTile.dataset.theme : 'minimal';
+  const blShowPP    = document.getElementById('chk-bl-pp').checked;
+  const blShowAcc   = document.getElementById('chk-bl-acc').checked;
+  const blShowStars = document.getElementById('chk-bl-stars').checked;
+  const blShowRank  = document.getElementById('chk-bl-rank').checked;
+  const blShowFC      = document.getElementById('chk-bl-fc').checked;
+  const blShowDate    = document.getElementById('chk-bl-date').checked;
+  const blShowHistory = document.getElementById('chk-bl-history').checked;
+  const blHistoryCount = Math.max(1, Math.min(10, parseInt(document.getElementById('input-bl-history-count').value, 10) || 5));
 
-  Config.save({ wsHost, wsPort, theme, statsEnabled }).then(() => showStatus('Einstellungen gespeichert!'));
+  Config.save({ wsHost, wsPort, theme, statsEnabled, blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowHistory, blHistoryCount })
+    .then(() => showStatus('Einstellungen gespeichert!'));
 }
 
 // --- Career stats display ---

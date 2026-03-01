@@ -16,6 +16,7 @@ body {
 #song-card,
 #score-panel,
 #beatleader-panel,
+#bl-history-panel,
 #player-banner,
 #career-stats {
   background: var(--glass-bg);
