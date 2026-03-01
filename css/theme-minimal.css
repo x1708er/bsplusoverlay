@@ -46,6 +46,11 @@ body {
   border: 1px solid var(--border);
 }
 
+#career-stats {
+  background: var(--bg-score);
+  border: 1px solid var(--border);
+}
+
 #pause-indicator {
   color: #fff;
   text-shadow: 0 0 30px rgba(255,255,255,0.4);

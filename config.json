@@ -1,0 +1,8 @@
+{
+  "theme": "neon",
+  "wsHost": "localhost",
+  "wsPort": 2947,
+  "totalHits": 0,
+  "totalMisses": 0,
+  "statsEnabled": true
+}

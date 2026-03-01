@@ -81,6 +81,16 @@ body {
   box-shadow: 0 0 16px rgba(0, 200, 255, 0.15);
 }
 
+#career-stats {
+  background: var(--bg-card);
+  border: 1px solid var(--border-pink);
+  box-shadow: 0 0 12px rgba(255, 45, 120, 0.1);
+}
+
+#stat-total { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,200,255,0.5); }
+#stat-hits  { color: #7dffd6; text-shadow: 0 0 8px rgba(125,255,214,0.4); }
+#stat-misses { color: #ff6e6e; text-shadow: 0 0 8px rgba(255,110,110,0.4); }
+
 #player-name {
   color: var(--neon-blue);
   text-shadow: 0 0 10px rgba(0, 200, 255, 0.6);

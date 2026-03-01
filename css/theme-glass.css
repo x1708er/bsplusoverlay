@@ -16,7 +16,8 @@ body {
 #song-card,
 #score-panel,
 #beatleader-panel,
-#player-banner {
+#player-banner,
+#career-stats {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
   backdrop-filter: blur(16px) saturate(180%);

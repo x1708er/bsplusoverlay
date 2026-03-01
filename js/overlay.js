@@ -3,13 +3,6 @@
  * Wires up BSPlusWS and BeatLeader events to the DOM elements in index.html.
  */
 
-// --- Theme loader ---
-(function loadTheme() {
-  const theme = localStorage.getItem('bsplusoverlay_theme') || 'minimal';
-  const link = document.getElementById('theme-css');
-  if (link) link.href = `css/theme-${theme}.css`;
-})();
-
 // --- Helpers ---
 function el(id) {
   return document.getElementById(id);
@@ -28,6 +21,15 @@ function setVisible(id, visible) {
 function setProgress(id, fraction) {
   const node = el(id);
   if (node) node.style.width = `${Math.max(0, Math.min(1, fraction)) * 100}%`;
+}
+
+function triggerAnim(id, className, duration = 600) {
+  const node = el(id);
+  if (!node) return;
+  node.classList.remove(className);
+  void node.offsetWidth; // force reflow to restart animation
+  node.classList.add(className);
+  setTimeout(() => node.classList.remove(className), duration);
 }
 
 const DIFF_COLORS = {
@@ -58,6 +60,33 @@ let songTimerInterval = null;
 let songStartTime = 0;
 let songElapsed = 0;
 let isPaused = false;
+
+// --- Career counter state ---
+let sessionHits = 0;
+let sessionMisses = 0;
+let prevMissCount = 0;
+let prevCombo = 0;
+let sessionActive = false;
+
+function updateCareerStatsDisplay() {
+  const enabled = Config.get('statsEnabled') !== false;
+  setVisible('career-stats', enabled);
+  if (!enabled) return;
+  const hits = Config.get('totalHits') || 0;
+  const misses = Config.get('totalMisses') || 0;
+  setText('stat-hits', hits.toLocaleString());
+  setText('stat-misses', misses.toLocaleString());
+  setText('stat-total', (hits + misses).toLocaleString());
+}
+
+async function flushSession() {
+  if (!sessionActive) return;
+  sessionActive = false;
+  const totalHits = (Config.get('totalHits') || 0) + sessionHits;
+  const totalMisses = (Config.get('totalMisses') || 0) + sessionMisses;
+  await Config.save({ totalHits, totalMisses });
+  updateCareerStatsDisplay();
+}
 
 // --- Song timer (client-side fallback) ---
 function startSongTimer(duration, startFrom = 0) {
@@ -111,25 +140,44 @@ BSPlusWS.onHandshake = ({ playerName, playerId }) => {
   loadPlayerAvatar(playerId);
 };
 
-BSPlusWS.onGameState = ({ state }) => {
+BSPlusWS.onGameState = async ({ state }) => {
   // state: "Menu" | "Playing"
   const playing = state === 'Playing';
   setVisible('overlay-playing', playing);
   setVisible('overlay-menu', state === 'Menu' || state === 'ResultsScreen');
-  if (!playing) stopSongTimer();
+  if (!playing) {
+    stopSongTimer();
+    await flushSession();
+  }
 };
 
 BSPlusWS.onMapInfo = async (info) => {
   currentMapInfo = info;
   stopSongTimer();
+  await flushSession();
+  sessionHits = 0;
+  sessionMisses = 0;
+  prevMissCount = 0;
+  prevCombo = 0;
+  sessionActive = true;
   setVisible('overlay-playing', true);
   setVisible('overlay-menu', false);
+
+  // Staggered entrance animation for overlay panels
+  const playingPanel = el('overlay-playing');
+  if (playingPanel) {
+    playingPanel.classList.remove('entering');
+    void playingPanel.offsetWidth;
+    playingPanel.classList.add('entering');
+    setTimeout(() => playingPanel.classList.remove('entering'), 800);
+  }
 
   // Cover art
   const coverEl = el('cover-art');
   if (coverEl) {
     if (info.coverRaw) {
       coverEl.src = `data:image/png;base64,${info.coverRaw}`;
+      triggerAnim('cover-art', 'entering', 500);
     } else {
       coverEl.src = '';
     }
@@ -186,6 +234,31 @@ BSPlusWS.onScore = (score) => {
   const health = score.currentHealth ?? 1;
   const time = score.time ?? 0;
 
+  // Accumulate per-session hit/miss counters
+  const deltaMiss = Math.max(0, missCount - prevMissCount);
+  sessionMisses += deltaMiss;
+  if (deltaMiss > 0) {
+    // Hits that occurred after the miss within this tick
+    sessionHits += combo;
+  } else if (combo > prevCombo) {
+    sessionHits += combo - prevCombo;
+  }
+
+  // Animations
+  if (deltaMiss > 0) {
+    triggerAnim('miss', 'flash', 550);
+  }
+  const prevMilestone = Math.floor(prevCombo / 100);
+  const curMilestone = Math.floor(combo / 100);
+  if (curMilestone > prevMilestone && combo > 0) {
+    triggerAnim('combo', 'milestone', 600);
+  }
+  const healthBar = el('health-bar');
+  if (healthBar) healthBar.classList.toggle('warning', health < 0.25);
+
+  prevMissCount = missCount;
+  prevCombo = combo;
+
   setText('score', rawScore.toLocaleString());
   setText('accuracy', `${(accuracy * 100).toFixed(2)}%`);
   setText('combo', `${combo}x`);
@@ -222,4 +295,9 @@ BSPlusWS.onResume = () => {
 })();
 
 // --- Init ---
-BSPlusWS.connect();
+Config.ready.then(() => {
+  const link = document.getElementById('theme-css');
+  if (link) link.href = `css/theme-${Config.get('theme')}.css`;
+  updateCareerStatsDisplay();
+  BSPlusWS.connect();
+});

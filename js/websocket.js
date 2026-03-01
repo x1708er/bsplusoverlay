@@ -1,6 +1,6 @@
 /**
  * BSPlus SongOverlay WebSocket Client
- * Protocol: ws://localhost:2947/socket
+ * Protocol: ws://<wsHost>:<wsPort>/socket
  *
  * Message structure:
  *   Handshake: { _type: "handshake", playerName, gameVersion, playerPlatformId, ... }
@@ -12,13 +12,10 @@ const BSPlusWS = (() => {
   let reconnectDelay = 1000;
   const MAX_DELAY = 30000;
 
-  function getPort() {
-    return parseInt(localStorage.getItem('bsplusoverlay_wsPort') || '2947', 10);
-  }
-
   function connect() {
-    const port = getPort();
-    const url = `ws://localhost:${port}/socket`;
+    const host = Config.get('wsHost') || 'localhost';
+    const port = parseInt(Config.get('wsPort') || '2947', 10);
+    const url = `ws://${host}:${port}/socket`;
 
     try {
       ws = new WebSocket(url);

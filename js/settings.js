@@ -1,21 +1,15 @@
 /**
  * Settings page logic
- * Loads and saves bsplusoverlay_* keys in localStorage.
+ * Loads and saves settings via the Config module (config.json on the server).
  */
-
-const KEYS = {
-  theme: 'bsplusoverlay_theme',
-  wsPort: 'bsplusoverlay_wsPort',
-};
 
 // --- Load saved values ---
 function loadSettings() {
-  const theme = localStorage.getItem(KEYS.theme) || 'minimal';
-  const wsPort = localStorage.getItem(KEYS.wsPort) || '2947';
-
-  document.getElementById('input-ws-port').value = wsPort;
-
-  selectTheme(theme, false);
+  document.getElementById('input-ws-host').value = Config.get('wsHost');
+  document.getElementById('input-ws-port').value = Config.get('wsPort');
+  document.getElementById('chk-stats-enabled').checked = Config.get('statsEnabled') !== false;
+  selectTheme(Config.get('theme'), false);
+  updateStatsDisplay();
 }
 
 // --- Theme selection ---
@@ -24,21 +18,35 @@ function selectTheme(theme, save = true) {
     tile.classList.toggle('selected', tile.dataset.theme === theme);
   });
   if (save) {
-    localStorage.setItem(KEYS.theme, theme);
-    showStatus('Theme gespeichert.');
+    Config.save({ theme }).then(() => showStatus('Theme gespeichert.'));
   }
 }
 
 // --- Save all ---
 function saveAll() {
-  const wsPort = document.getElementById('input-ws-port').value.trim() || '2947';
+  const wsHost = document.getElementById('input-ws-host').value.trim() || 'localhost';
+  const wsPort = parseInt(document.getElementById('input-ws-port').value.trim(), 10) || 2947;
+  const statsEnabled = document.getElementById('chk-stats-enabled').checked;
   const selectedTile = document.querySelector('.theme-tile.selected');
   const theme = selectedTile ? selectedTile.dataset.theme : 'minimal';
 
-  localStorage.setItem(KEYS.wsPort, wsPort);
-  localStorage.setItem(KEYS.theme, theme);
+  Config.save({ wsHost, wsPort, theme, statsEnabled }).then(() => showStatus('Einstellungen gespeichert!'));
+}
 
-  showStatus('Einstellungen gespeichert!');
+// --- Career stats display ---
+function updateStatsDisplay() {
+  const hits = Config.get('totalHits') || 0;
+  const misses = Config.get('totalMisses') || 0;
+  document.getElementById('disp-total').textContent = (hits + misses).toLocaleString();
+  document.getElementById('disp-hits').textContent = hits.toLocaleString();
+  document.getElementById('disp-misses').textContent = misses.toLocaleString();
+}
+
+function resetStats() {
+  Config.save({ totalHits: 0, totalMisses: 0 }).then(() => {
+    updateStatsDisplay();
+    showStatus('Stats zurückgesetzt.');
+  });
 }
 
 // --- Status message ---
@@ -52,13 +60,19 @@ function showStatus(msg) {
 
 // --- Wire up events ---
 document.addEventListener('DOMContentLoaded', () => {
-  loadSettings();
+  Config.ready.then(() => {
+    loadSettings();
 
-  document.querySelectorAll('.theme-tile').forEach(tile => {
-    tile.addEventListener('click', () => selectTheme(tile.dataset.theme));
+    // Poll config every 3s and update stats display when values change
+    Config.onUpdate(updateStatsDisplay);
+    Config.startPolling(3000);
+
+    document.querySelectorAll('.theme-tile').forEach(tile => {
+      tile.addEventListener('click', () => selectTheme(tile.dataset.theme));
+    });
+
+    document.getElementById('btn-save').addEventListener('click', saveAll);
+    document.getElementById('btn-reset-stats').addEventListener('click', resetStats);
+    document.getElementById('link-overlay').href = 'index.html';
   });
-
-  document.getElementById('btn-save').addEventListener('click', saveAll);
-
-  document.getElementById('link-overlay').href = 'index.html';
 });

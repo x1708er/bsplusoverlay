@@ -85,11 +85,26 @@
         <div id="player-banner-sub">Beat Saber</div>
       </div>
     </div>
+    <div id="career-stats">
+      <div class="cs-item">
+        <span class="cs-value" id="stat-total">0</span>
+        <span class="cs-label">Total</span>
+      </div>
+      <div class="cs-item">
+        <span class="cs-value" id="stat-hits">0</span>
+        <span class="cs-label">Hits</span>
+      </div>
+      <div class="cs-item">
+        <span class="cs-value" id="stat-misses">0</span>
+        <span class="cs-label">Misses</span>
+      </div>
+    </div>
   </div>
 
   <!-- Dev link (only visible with ?dev=1) -->
   <a id="dev-link" href="settings.html" class="hidden">⚙ Settings</a>
 
+  <script src="js/config.js"></script>
   <script src="js/websocket.js"></script>
   <script src="js/beatleader.js"></script>
   <script src="js/overlay.js"></script>
