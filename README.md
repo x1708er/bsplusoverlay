@@ -151,6 +151,7 @@ This project is actively being developed. The roadmap is organized by priority a
 - [ ] **Animated transitions** — configurable enter/exit animations for each widget
 - [ ] **Twitch chat command display** — show viewer `!bsr` requests and currently queued songs (requires BS+ queue integration)
 - [ ] **Rank-up alert** — animated notification when a new global or regional rank milestone is hit
+- [ ] **Hosted Version** — Hosted version for those who don't want to mess with the easy local installation.
 
 ---
 
