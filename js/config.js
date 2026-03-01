@@ -9,7 +9,10 @@ const Config = (() => {
     totalHits: 0, totalMisses: 0, statsEnabled: true,
     blShowPP: true, blShowAcc: true, blShowRank: true,
     blShowStars: true, blShowFC: true, blShowDate: false,
+    blShowMaxPP: false, blShowPPGain: true,
     blShowHistory: true, blHistoryCount: 5,
+    overlayPosition: 'bottom-left', overlayScale: 1,
+    showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true,
   };
 
   let values = { ...DEFAULTS };
