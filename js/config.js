@@ -16,6 +16,8 @@ const Config = (() => {
     showSongHistory: true, songHistoryCount: 8, songHistoryScroll: true, songHistoryScrollSpeed: 3000, songHistoryVisibleRows: 3,
     showSessionStats: true,
     customCSS: '',
+    customFont: '',
+    animationStyle: 'slide',
   };
 
   let values = { ...DEFAULTS };

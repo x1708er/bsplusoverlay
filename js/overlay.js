@@ -3,6 +3,22 @@
  * Wires up BSPlusWS and BeatLeader events to the DOM elements in index.html.
  */
 
+// --- Font loading ---
+function applyFont(font) {
+  const old = document.getElementById('google-font');
+  if (old) old.remove();
+  if (font) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.id = 'google-font';
+    link.href = `https://fonts.googleapis.com/css2?family=${encodeURIComponent(font)}:wght@400;600;700;800;900&display=swap`;
+    document.head.appendChild(link);
+    document.body.style.fontFamily = `'${font}', 'Segoe UI', Arial, sans-serif`;
+  } else {
+    document.body.style.fontFamily = '';
+  }
+}
+
 // --- Helpers ---
 function el(id) {
   return document.getElementById(id);
@@ -390,9 +406,12 @@ function applyLayoutConfig() {
   const pos   = Config.get('overlayPosition') || 'bottom-left';
   const scale = parseFloat(Config.get('overlayScale')) || 1;
 
-  // Position class on body
-  document.body.className = document.body.className.replace(/\bpos-\S+/g, '').trim();
+  // Position + animation classes on body
+  document.body.className = document.body.className
+    .replace(/\bpos-\S+/g, '').replace(/\banim-\S+/g, '').trim();
   if (pos !== 'bottom-left') document.body.classList.add(`pos-${pos}`);
+  const anim = Config.get('animationStyle') || 'slide';
+  if (anim !== 'slide') document.body.classList.add(`anim-${anim}`);
 
   // Scale with matching transform-origin
   const origins = {
@@ -463,8 +482,9 @@ BSPlusWS.onHandshake = ({ playerName, playerId }) => {
 BSPlusWS.onGameState = async ({ state }) => {
   // state: "Menu" | "Playing"
   const playing = state === 'Playing';
-  setVisible('overlay-playing', playing);
   if (playing) {
+    el('overlay-playing')?.classList.remove('leaving');
+    setVisible('overlay-playing', true);
     dismissResultScreen();
     setVisible('overlay-menu', false);
     stopHistoryScroll();
@@ -472,6 +492,14 @@ BSPlusWS.onGameState = async ({ state }) => {
     captureAndAddToHistory();
     stopSongTimer();
     await flushSession();
+    // Animate out overlay-playing before hiding
+    const playingPanel = el('overlay-playing');
+    if (Config.get('animationStyle') !== 'none' && playingPanel && !playingPanel.classList.contains('hidden')) {
+      playingPanel.classList.add('leaving');
+      await new Promise(r => setTimeout(r, 280));
+      playingPanel.classList.remove('leaving');
+    }
+    setVisible('overlay-playing', false);
     const shown = showResultScreen(currentMapInfo, lastScoreData, lastBLScore);
     if (!shown) {
       setVisible('overlay-menu', true);
@@ -484,6 +512,7 @@ BSPlusWS.onGameState = async ({ state }) => {
 BSPlusWS.onMapInfo = async (info) => {
   captureAndAddToHistory(); // capture previous song before overwriting currentMapInfo
   dismissResultScreen();
+  el('overlay-playing')?.classList.remove('leaving');
   stopHistoryScroll();
   currentMapInfo = info;
   stopSongTimer();
@@ -797,6 +826,27 @@ function buildSettingsPanelHTML() {
     </div>
 
     <div class="ov-section">
+      <div class="ov-section-title">Animation</div>
+      <div class="ov-anim-tiles">
+        <div class="ov-anim-tile" data-ov-anim="slide">Gleiten</div>
+        <div class="ov-anim-tile" data-ov-anim="fade">Einblenden</div>
+        <div class="ov-anim-tile" data-ov-anim="bounce">Springen</div>
+        <div class="ov-anim-tile" data-ov-anim="none">Keine</div>
+      </div>
+    </div>
+
+    <div class="ov-section">
+      <div class="ov-section-title">Font</div>
+      <input type="text" id="ov-font-input" placeholder="Google Font, z.B. Orbitron" style="width:100%;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:5px;color:#fff;padding:5px 8px;font-size:0.75rem;outline:none;">
+      <div class="ov-font-presets">
+        <button class="ov-font-btn" data-font="Orbitron">Orbitron</button>
+        <button class="ov-font-btn" data-font="Rajdhani">Rajdhani</button>
+        <button class="ov-font-btn" data-font="Exo 2">Exo 2</button>
+        <button class="ov-font-btn" data-font="">Standard</button>
+      </div>
+    </div>
+
+    <div class="ov-section">
       <div class="ov-section-title">Elemente</div>
       <div class="ov-check-grid">
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-songcard"> Song-Karte</label>
@@ -873,6 +923,13 @@ function initOverlaySettings() {
     const scaleDisplay = el('ov-scale-display');
     if (scaleSlider)  scaleSlider.value = Math.round(scale * 100);
     if (scaleDisplay) scaleDisplay.textContent = `${Math.round(scale * 100)}%`;
+
+    const animStyle = Config.get('animationStyle') || 'slide';
+    panel.querySelectorAll('[data-ov-anim]').forEach(t =>
+      t.classList.toggle('ov-selected', t.dataset.ovAnim === animStyle));
+
+    const fontInput2 = el('ov-font-input');
+    if (fontInput2) fontInput2.value = Config.get('customFont') || '';
 
     OV_CHECKBOXES.forEach(({ id, key, defaultOn = true }) => {
       const chk = el(id);
@@ -957,6 +1014,51 @@ function initOverlaySettings() {
     _scaleSaveTimer = setTimeout(() => Config.save({ overlayScale: val }), 500);
   });
 
+  // Animation tiles
+  panel.addEventListener('click', (e) => {
+    const animTile = e.target.closest('[data-ov-anim]');
+    if (animTile) {
+      const style = animTile.dataset.ovAnim;
+      panel.querySelectorAll('[data-ov-anim]').forEach(t => t.classList.remove('ov-selected'));
+      animTile.classList.add('ov-selected');
+      Config.save({ animationStyle: style });
+      applyLayoutConfig();
+    }
+  });
+
+  // Font input — debounced apply + save
+  let _fontSaveTimer = null;
+  const fontInput = el('ov-font-input');
+  if (fontInput) {
+    fontInput.addEventListener('input', () => {
+      clearTimeout(_fontSaveTimer);
+      _fontSaveTimer = setTimeout(() => {
+        const font = fontInput.value.trim();
+        applyFont(font);
+        Config.save({ customFont: font });
+      }, 700);
+    });
+    fontInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        clearTimeout(_fontSaveTimer);
+        const font = fontInput.value.trim();
+        applyFont(font);
+        Config.save({ customFont: font });
+      }
+    });
+  }
+
+  // Font preset buttons
+  body.addEventListener('click', (e) => {
+    const btn = e.target.closest('.ov-font-btn');
+    if (!btn) return;
+    const font = btn.dataset.font;
+    if (fontInput) fontInput.value = font;
+    applyFont(font);
+    clearTimeout(_fontSaveTimer);
+    Config.save({ customFont: font });
+  });
+
   // Checkboxes — apply immediately, save without blocking
   body.addEventListener('change', (e) => {
     if (e.target.type !== 'checkbox') return;
@@ -981,6 +1083,7 @@ Config.ready.then(() => {
   if (link) link.href = `css/theme-${Config.get('theme')}.css`;
   const customStyle = document.getElementById('custom-css');
   if (customStyle) customStyle.textContent = Config.get('customCSS') || '';
+  applyFont(Config.get('customFont') || '');
   applyLayoutConfig();
   updateCareerStatsDisplay();
   updateSessionStats();

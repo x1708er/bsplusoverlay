@@ -36,8 +36,20 @@ function loadSettings() {
   document.getElementById('chk-show-pbdelta').checked  = Config.get('showPBDelta')    !== false;
   document.getElementById('chk-show-accgraph').checked = Config.get('showAccGraph')   !== false;
   document.getElementById('input-custom-css').value    = Config.get('customCSS')      || '';
+  document.getElementById('input-font').value          = Config.get('customFont')     || '';
   selectTheme(Config.get('theme'), false);
+  selectAnimation(Config.get('animationStyle') || 'slide', false);
   updateStatsDisplay();
+}
+
+// --- Animation selection ---
+function selectAnimation(style, save = true) {
+  document.querySelectorAll('.anim-tile').forEach(tile => {
+    tile.classList.toggle('selected', tile.dataset.anim === style);
+  });
+  if (save) {
+    Config.save({ animationStyle: style }).then(() => showStatus('Animation gespeichert.'));
+  }
 }
 
 // --- Position selection ---
@@ -94,12 +106,16 @@ function saveAll() {
   const showPBDelta    = document.getElementById('chk-show-pbdelta').checked;
   const showAccGraph   = document.getElementById('chk-show-accgraph').checked;
   const customCSS      = document.getElementById('input-custom-css').value;
+  const selectedAnim   = document.querySelector('.anim-tile.selected');
+  const animationStyle = selectedAnim ? selectedAnim.dataset.anim : 'slide';
+  const customFont     = document.getElementById('input-font').value.trim();
 
   Config.save({
     wsHost, wsPort, theme, statsEnabled, showSessionStats,
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain, blShowHistory, blHistoryCount,
     showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
-    overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph, customCSS,
+    overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph,
+    customCSS, animationStyle, customFont,
   }).then(() => showStatus('Einstellungen gespeichert!'));
 }
 
@@ -147,6 +163,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.querySelectorAll('.theme-tile').forEach(tile => {
       tile.addEventListener('click', () => selectTheme(tile.dataset.theme));
+    });
+
+    document.querySelectorAll('.anim-tile').forEach(tile => {
+      tile.addEventListener('click', () => selectAnimation(tile.dataset.anim));
+    });
+
+    document.querySelectorAll('.font-preset-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('input-font').value = btn.dataset.font;
+      });
     });
 
     document.getElementById('btn-save').addEventListener('click', saveAll);

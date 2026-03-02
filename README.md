@@ -147,8 +147,8 @@ This project is actively being developed. The roadmap is organized by priority a
 ### 💡 Stretch Goals / Community Features
 
 - [ ] **Multiple overlay presets** — save and switch between named layout configurations (e.g. "tournament mode", "chill stream", "FC attempt")
-- [ ] **Custom font support** — load any Google Font or local font file via settings
-- [ ] **Animated transitions** — configurable enter/exit animations for each widget
+- [x] **Custom font support** — load any Google Font or local font file via settings
+- [x] **Animated transitions** — configurable enter/exit animations for each widget
 - [ ] **Twitch chat command display** — show viewer `!bsr` requests and currently queued songs (requires BS+ queue integration)
 - [ ] **Rank-up alert** — animated notification when a new global or regional rank milestone is hit
 - [ ] **Hosted Version** — Hosted version for those who don't want to mess with the easy local installation.

@@ -356,6 +356,59 @@
       color: rgba(200,255,200,0.7);
     }
 
+    /* --- Animation tiles --- */
+    .anim-tiles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .anim-tile {
+      border-radius: 10px;
+      border: 2px solid rgba(255,255,255,0.1);
+      cursor: pointer;
+      overflow: hidden;
+      transition: border-color 0.2s, transform 0.15s;
+      user-select: none;
+    }
+
+    .anim-tile:hover {
+      border-color: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+
+    .anim-tile.selected { border-color: #60b0ff; }
+
+    .anim-preview {
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .anim-prev-slide  { color: #60b0ff; }
+    .anim-prev-fade   { color: rgba(96,176,255,0.6); }
+    .anim-prev-bounce { color: #7dffd6; }
+    .anim-prev-none   { color: rgba(200,200,220,0.3); font-size: 1.8rem; }
+
+    .anim-label {
+      text-align: center;
+      font-size: 0.72rem;
+      padding: 6px;
+      color: rgba(200,200,220,0.7);
+      background: rgba(255,255,255,0.03);
+    }
+
+    .anim-tile.selected .anim-label { color: #60b0ff; }
+
+    /* --- Font preset buttons --- */
+    .font-preset-btn {
+      font-size: 0.8rem;
+      padding: 6px 12px;
+    }
+
     /* --- Divider --- */
     .divider {
       border: none;
@@ -522,6 +575,49 @@
         <label class="toggle-label"><input type="checkbox" id="chk-show-health"> Health-Balken</label>
         <label class="toggle-label"><input type="checkbox" id="chk-show-pbdelta"> PB-Delta</label>
         <label class="toggle-label"><input type="checkbox" id="chk-show-accgraph"> Accuracy-Graph</label>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-title">Animationen</div>
+      <p class="section-desc">Stil der Ein- und Ausblend-Animationen für alle Overlay-Panels.</p>
+      <div class="anim-tiles">
+        <div class="anim-tile" data-anim="slide">
+          <div class="anim-preview anim-prev-slide">▶</div>
+          <div class="anim-label">Gleiten</div>
+        </div>
+        <div class="anim-tile" data-anim="fade">
+          <div class="anim-preview anim-prev-fade">◎</div>
+          <div class="anim-label">Einblenden</div>
+        </div>
+        <div class="anim-tile" data-anim="bounce">
+          <div class="anim-preview anim-prev-bounce">⟳</div>
+          <div class="anim-label">Springen</div>
+        </div>
+        <div class="anim-tile" data-anim="none">
+          <div class="anim-preview anim-prev-none">—</div>
+          <div class="anim-label">Keine</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="section">
+      <div class="section-title">Font</div>
+      <p class="section-desc">Name eines Google Fonts (wird automatisch geladen). Leer lassen für Standardschrift.</p>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <input type="text" id="input-font" placeholder="z.B. Orbitron, Rajdhani, Exo 2" style="flex:1">
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="font-preset-btn" data-font="Orbitron">Orbitron</button>
+        <button class="font-preset-btn" data-font="Rajdhani">Rajdhani</button>
+        <button class="font-preset-btn" data-font="Exo 2">Exo 2</button>
+        <button class="font-preset-btn" data-font="Audiowide">Audiowide</button>
+        <button class="font-preset-btn" data-font="Russo One">Russo One</button>
+        <button class="font-preset-btn" data-font="" style="color:rgba(200,200,220,0.5)">Standard</button>
       </div>
     </div>
 

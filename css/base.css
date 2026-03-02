@@ -673,6 +673,52 @@ body.pos-top-right #ov-settings-panel.open {
 .ov-pos-tile:hover       { border-color: rgba(255,255,255,0.25); }
 .ov-pos-tile.ov-selected { border-color: #60b0ff; color: #60b0ff; }
 
+/* Animation tiles */
+.ov-anim-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+}
+
+.ov-anim-tile {
+  border-radius: 5px;
+  border: 1.5px solid rgba(255,255,255,0.08);
+  cursor: pointer;
+  transition: border-color 0.18s;
+  user-select: none;
+  padding: 5px 6px;
+  text-align: center;
+  font-size: 0.7rem;
+  color: rgba(200,200,220,0.65);
+}
+
+.ov-anim-tile:hover       { border-color: rgba(255,255,255,0.25); }
+.ov-anim-tile.ov-selected { border-color: #60b0ff; color: #60b0ff; }
+
+/* Font presets */
+.ov-font-presets {
+  display: flex;
+  gap: 4px;
+  margin-top: 5px;
+  flex-wrap: wrap;
+}
+
+.ov-font-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 4px;
+  color: rgba(220,220,240,0.7);
+  font-size: 0.68rem;
+  padding: 3px 7px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ov-font-btn:hover {
+  background: rgba(255,255,255,0.13);
+  border-color: rgba(255,255,255,0.25);
+}
+
 /* Scale slider */
 #ov-scale {
   width: 100%;
@@ -729,6 +775,16 @@ body.pos-top-right #ov-settings-panel.open {
 @keyframes panelIn {
   from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes panelInFade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes panelOut {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(10px); }
 }
 
 @keyframes fadeIn {
@@ -797,6 +853,59 @@ body.pos-top-right #ov-settings-panel.open {
 #health-bar.warning {
   animation: healthPulse 0.75s ease-in-out infinite;
 }
+
+/* =====================
+   Overlay Exit Animation
+   ===================== */
+
+#overlay-playing.leaving {
+  animation: panelOut 0.28s ease both;
+  pointer-events: none;
+}
+
+/* =====================
+   Animation Style Overrides
+   ===================== */
+
+/* anim-fade: opacity-only transitions */
+body.anim-fade #overlay-playing.entering > *:nth-child(1),
+body.anim-fade #overlay-playing.entering > *:nth-child(2),
+body.anim-fade #overlay-playing.entering > *:nth-child(3),
+body.anim-fade #overlay-playing.entering > *:nth-child(4),
+body.anim-fade #overlay-playing.entering > *:nth-child(5),
+body.anim-fade #overlay-playing.entering > *:nth-child(6),
+body.anim-fade #overlay-playing.entering > *:nth-child(7) {
+  animation-name: panelInFade;
+  animation-timing-function: ease;
+}
+body.anim-fade #overlay-menu:not(.hidden)         { animation-name: panelInFade; animation-timing-function: ease; }
+body.anim-fade #beatleader-panel:not(.hidden)      { animation-name: panelInFade; animation-timing-function: ease; }
+body.anim-fade #song-history-panel                 { animation-name: panelInFade; animation-timing-function: ease; }
+body.anim-fade #player-banner                      { animation-name: panelInFade; animation-timing-function: ease; }
+body.anim-fade #cover-art.entering                 { animation-name: panelInFade; animation-timing-function: ease; }
+body.anim-fade #overlay-playing.leaving            { animation-name: panelInFade; animation-direction: reverse; }
+
+/* anim-bounce: spring easing */
+body.anim-bounce #overlay-playing.entering > *:nth-child(1),
+body.anim-bounce #overlay-playing.entering > *:nth-child(2),
+body.anim-bounce #overlay-playing.entering > *:nth-child(3),
+body.anim-bounce #overlay-playing.entering > *:nth-child(4),
+body.anim-bounce #overlay-playing.entering > *:nth-child(5),
+body.anim-bounce #overlay-playing.entering > *:nth-child(6),
+body.anim-bounce #overlay-playing.entering > *:nth-child(7) {
+  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body.anim-bounce #overlay-menu:not(.hidden)    { animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+body.anim-bounce #beatleader-panel:not(.hidden){ animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
+
+/* anim-none: disable all animations */
+body.anim-none #overlay-playing.entering > * { animation: none !important; }
+body.anim-none #overlay-menu:not(.hidden)    { animation: none !important; }
+body.anim-none #beatleader-panel:not(.hidden){ animation: none !important; }
+body.anim-none #cover-art.entering           { animation: none !important; }
+body.anim-none #song-history-panel           { animation: none !important; }
+body.anim-none #player-banner                { animation: none !important; }
+body.anim-none #overlay-playing.leaving      { animation: none !important; }
 
 /* =====================
    Song History Panel (Menu)
