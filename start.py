@@ -16,6 +16,7 @@ import os
 
 PORT = 7273
 URL = f"http://localhost:{PORT}/settings.html"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def check_python_version():
@@ -28,8 +29,38 @@ def port_in_use(port):
         return s.connect_ex(('localhost', port)) == 0
 
 
+def run_auto_update():
+    if os.path.exists(os.path.join(BASE_DIR, '.noupdate')):
+        print("Auto-Update übersprungen (.noupdate vorhanden).")
+        return
+
+    print("Prüfe auf Updates …", flush=True)
+    if BASE_DIR not in sys.path:
+        sys.path.insert(0, BASE_DIR)
+    try:
+        import updater
+        info = updater.check()
+    except Exception as e:
+        print(f"Update-Check fehlgeschlagen: {e}")
+        return
+
+    if not info["update_available"]:
+        print(f"Bereits aktuell ({info['remote'][:7]}).")
+        return
+
+    local = (info.get("local") or "unbekannt")[:7]
+    print(f"Update verfügbar ({local} → {info['remote'][:7]}) – installiere …", flush=True)
+    result = updater.apply()
+    if result["ok"]:
+        print(f"✓ {len(result['updated_files'])} Dateien aktualisiert.")
+    else:
+        print(f"Warnung: Update fehlgeschlagen: {result['error']}")
+
+
 def main():
     check_python_version()
+    os.chdir(BASE_DIR)
+    run_auto_update()
 
     if port_in_use(PORT):
         print(f"Port {PORT} ist bereits belegt.")
@@ -41,8 +72,7 @@ def main():
     if '--no-browser' not in sys.argv:
         threading.Timer(1.0, webbrowser.open, args=[URL]).start()
 
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    runpy.run_path(os.path.join(os.path.dirname(__file__), 'server.py'), run_name='__main__')
+    runpy.run_path(os.path.join(BASE_DIR, 'server.py'), run_name='__main__')
 
 
 if __name__ == '__main__':
