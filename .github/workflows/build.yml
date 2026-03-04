@@ -57,8 +57,9 @@ jobs:
         run: pyinstaller BSPlusOverlay.spec
       - name: Package as DMG
         run: |
+          cp -r dist/BSPlusOverlay /tmp/BSPlusOverlay
           hdiutil create -volname "BSPlusOverlay" \
-            -srcfolder dist/BSPlusOverlay \
+            -srcfolder /tmp/BSPlusOverlay \
             -ov -format UDZO \
             BSPlusOverlay-macOS.dmg
       - uses: actions/upload-artifact@v4
