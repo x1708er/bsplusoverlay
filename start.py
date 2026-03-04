@@ -20,6 +20,15 @@ BASE_DIR = (os.path.dirname(sys.executable)
             if getattr(sys, 'frozen', False)
             else os.path.dirname(os.path.abspath(__file__)))
 
+# PyInstaller auf Windows bundelt keine CA-Zertifikate — certifi einbinden
+if getattr(sys, 'frozen', False):
+    try:
+        import certifi
+        os.environ.setdefault('SSL_CERT_FILE', certifi.where())
+        os.environ.setdefault('REQUESTS_CA_BUNDLE', certifi.where())
+    except ImportError:
+        pass
+
 
 def check_python_version():
     if sys.version_info < (3, 6):
@@ -74,7 +83,10 @@ def main():
     if '--no-browser' not in sys.argv:
         threading.Timer(1.0, webbrowser.open, args=[URL]).start()
 
-    runpy.run_path(os.path.join(BASE_DIR, 'server.py'), run_name='__main__')
+    if getattr(sys, 'frozen', False):
+        runpy.run_module('server', run_name='__main__')
+    else:
+        runpy.run_path(os.path.join(BASE_DIR, 'server.py'), run_name='__main__')
 
 
 if __name__ == '__main__':

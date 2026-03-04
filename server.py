@@ -154,6 +154,9 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
 
     def _load_updater(self):
+        if getattr(sys, 'frozen', False):
+            import updater
+            return updater
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'updater.py')
         spec = importlib.util.spec_from_file_location('updater', path)
         mod  = importlib.util.module_from_spec(spec)
@@ -195,7 +198,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
 
 if __name__ == '__main__':
-    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    if not getattr(sys, 'frozen', False):
+        os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     # ThreadingHTTPServer ab Python 3.7
     try:

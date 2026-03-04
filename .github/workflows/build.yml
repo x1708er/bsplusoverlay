@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install PyInstaller
-        run: pip install pyinstaller
+        run: pip install pyinstaller certifi
       - name: Build with PyInstaller
         run: pyinstaller BSPlusOverlay.spec
       - name: Build installer with Inno Setup
@@ -34,7 +34,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install PyInstaller
-        run: pip install pyinstaller
+        run: pip install pyinstaller certifi
       - name: Build with PyInstaller
         run: pyinstaller BSPlusOverlay.spec
       - name: Package as tar.gz
@@ -52,7 +52,7 @@ jobs:
         with:
           python-version: '3.12'
       - name: Install PyInstaller
-        run: pip install pyinstaller
+        run: pip install pyinstaller certifi
       - name: Build with PyInstaller
         run: pyinstaller BSPlusOverlay.spec
       - name: Package as DMG

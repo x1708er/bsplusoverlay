@@ -1,4 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
+import certifi
+
 a = Analysis(
     ['start.py'],
     pathex=[],
@@ -7,8 +9,9 @@ a = Analysis(
         ('settings.html', '.'),
         ('css',           'css'),
         ('js',            'js'),
+        (certifi.where(), 'certifi'),
     ],
-    hiddenimports=[],
+    hiddenimports=['server', 'updater', 'certifi'],
 )
 pyz = PYZ(a.pure)
 exe = EXE(pyz, a.scripts, [],
