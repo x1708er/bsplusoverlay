@@ -2,10 +2,10 @@
 
 > **A fully local, privacy-first stream overlay for Beat Saber** — powered by the BS+ mod and the BeatLeader API.
 
-[![Work in Progress](https://img.shields.io/badge/status-work%20in%20progress-orange?style=flat-square)](https://camo.githubusercontent.com/ba18d0b0989dd2e9ed2b9075f1ebaeddbee8fb142e9099721a556d6cf217af73/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374617475732d776f726b253230696e25323070726f67726573732d6f72616e67653f7374796c653d666c61742d737175617265)
-[![Python](https://img.shields.io/badge/python-3.14%2B-blue?style=flat-square&logo=python)](https://camo.githubusercontent.com/5aa326c306b4134a6841fd41aa12964b63d099fd200a6fb8abc42c8c364da1f1/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f707974686f6e2d332e31342532422d626c75653f7374796c653d666c61742d737175617265266c6f676f3d707974686f6e)
-[![License](https://img.shields.io/badge/license-see%20repo-lightgrey?style=flat-square)](https://camo.githubusercontent.com/0a4b816e8e22968ceaf96a5c9a80aeb467bcfb6526522189c3de4910913fb97a/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f6c6963656e73652d7365652532307265706f2d6c69676874677265793f7374796c653d666c61742d737175617265)
-[![Vibe Coded](https://img.shields.io/badge/vibe%20coded%20with-Claude%20Code-blueviolet?style=flat-square)](https://camo.githubusercontent.com/21dd56b0e42eb939d3686f272d2b1b154871c9bd0f29ed36835db49593b58472/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f76696265253230636f646564253230776974682d436c61756465253230436f64652d626c756576696f6c65743f7374796c653d666c61742d737175617265)
+[![Release](https://img.shields.io/github/v/release/x1708er/bsplusoverlay?style=flat-square)](https://github.com/x1708er/bsplusoverlay/releases)
+[![Python](https://img.shields.io/badge/python-3.6%2B-blue?style=flat-square&logo=python)](https://www.python.org/)
+[![License](https://img.shields.io/badge/license-see%20repo-lightgrey?style=flat-square)](LICENSE)
+[![Vibe Coded](https://img.shields.io/badge/vibe%20coded%20with-Claude%20Code-blueviolet?style=flat-square)](https://www.anthropic.com/claude-code)
 
 ---
 
@@ -21,17 +21,6 @@ The overlay is designed to be used as a **browser source in OBS** (or any other 
 
 ## ⚙️ Prerequisites
 
-Before getting started, make sure you have the following installed:
-
-### Required
-
-* **Python 3.14+**
-  + Tested on **Arch Linux / CachyOS** with Python 3.14.3
-  + Also works on Windows and macOS
-  + Python is required to run a local proxy server that bridges the BeatLeader API — this is necessary to work around browser CORS restrictions that would otherwise block direct API calls from the overlay
-
-### Beat Saber Setup
-
 * **BS+ Mod** installed via a mod manager (e.g. ModAssistant or BSManager)
 * An active **BeatLeader** profile
 
@@ -39,51 +28,39 @@ Before getting started, make sure you have the following installed:
 
 ## 🚀 Getting Started
 
-### 1. Start the local proxy server
+### Option A — Installer (recommended, no Python required)
 
+Download the latest release for your platform from the [Releases page](https://github.com/x1708er/bsplusoverlay/releases):
+
+| Platform | File |
+|---|---|
+| Windows | `BSPlusOverlay-Setup-Windows.exe` |
+| macOS | `BSPlusOverlay-macOS.dmg` |
+| Linux | `BSPlusOverlay-Linux.tar.gz` |
+
+Run the installer (Windows) or the extracted binary — it opens the settings page in your browser automatically.
+
+### Option B — Run from source (Python 3.6+)
+
+```bash
+python start.py               # start server + open settings in browser
+python start.py --no-browser  # server only
 ```
-python start.py
-```
-
-This will launch the Python proxy server and open a **settings page** in your default browser where you can configure the overlay to your liking.
-
-> **Tip:** Run `python start.py --no-browser` to start the server without opening the browser automatically.
 
 ---
 
-### 2. Configure the overlay
+### Configure the overlay
 
-Once the settings page opens, customize the overlay appearance and behavior — player ID, layout, colors, enabled elements, etc.
+Once the settings page opens, customize the overlay appearance and behavior — theme, layout, visible panels, font, and more. Your player name is detected automatically from Beat Saber via the BS+ mod.
 
 ---
 
-### 3. Add to OBS as Browser Source
-
-In OBS Studio (or similar):
+### Add to OBS as Browser Source
 
 1. Add a new **Browser Source**
-2. Set the URL to:
-
-   ```
-   http://localhost:7273/index.html
-   ```
+2. Set the URL to `http://localhost:7273/index.html`
 3. Set the resolution to match your canvas (e.g. `1920 × 1080`)
 4. Done — the overlay is now live! 🎉
-
----
-
-## 🗂️ Project Structure
-
-```
-bsplusoverlay/
-├── start.py           # Cross-platform launcher (run this)
-├── server.py          # Local HTTP server + BeatLeader proxy
-├── index.html         # Overlay page (use this as OBS browser source)
-├── settings.html      # Settings page
-├── config.json        # Saved settings
-├── css/               # Stylesheets (base + themes)
-└── js/                # JavaScript modules
-```
 
 ---
 
@@ -103,16 +80,13 @@ All data processing happens **entirely on your local machine**:
 | Problem | Solution |
 | --- | --- |
 | Overlay shows no data | Make sure Beat Saber is running with BS+ active |
-| BeatLeader stats not loading | Check that the Python proxy is running and reachable at `localhost:7273` |
+| BeatLeader stats not loading | Check that the server is running and reachable at `localhost:7273` |
 | Browser source is blank in OBS | Verify the URL is set to `http://localhost:7273/index.html` |
-| `start.py` won't start | Make sure Python 3.14+ is installed and run `python start.py` |
-| Port 7273 already in use | Stop any conflicting process or change the port in the config |
+| Port 7273 already in use | Stop any conflicting process or change the port in the settings |
 
 ---
 
 ## 🚧 Roadmap
-
-This project is actively being developed. The roadmap is organized by priority and scope.
 
 ### 🎯 Near-term (Core Polish)
 
@@ -122,7 +96,7 @@ This project is actively being developed. The roadmap is organized by priority a
 
 ### 📊 Mid-term (Richer Data)
 
-- [ ] **Session statistics widget** — total PP earned, maps played, average accuracy, combo streaks for the current session
+- [x] **Session statistics widget** — total PP earned, maps played, average accuracy, combo streaks for the current session
 - [x] **Accuracy graph** — live line chart showing accuracy trend over the course of the current map
 - [x] **Song history panel** — scrollable list of last N played maps with scores and accuracy
 - [x] **Fail / Pass screen** — animated end-of-map result screen with score breakdown
@@ -142,16 +116,16 @@ This project is actively being developed. The roadmap is organized by priority a
 - [ ] **Docker support** — single `docker compose up` to run the proxy without a local Python install
 - [ ] **WebSocket hot-reload** — overlay updates without full page refresh when config changes
 - [ ] **Multi-language support (i18n)** — UI strings externalized for community translations
-- [ ] **Automated release pipeline** — GitHub Actions build + versioned releases with changelogs
+- [x] **Automated release pipeline** — GitHub Actions builds self-contained installers for Windows, macOS, and Linux on every tagged release
 
 ### 💡 Stretch Goals / Community Features
 
 - [ ] **Multiple overlay presets** — save and switch between named layout configurations (e.g. "tournament mode", "chill stream", "FC attempt")
-- [x] **Custom font support** — load any Google Font or local font file via settings
+- [x] **Custom font support** — load any Google Font via settings
 - [x] **Animated transitions** — configurable enter/exit animations for each widget
 - [ ] **Twitch chat command display** — show viewer `!bsr` requests and currently queued songs (requires BS+ queue integration)
 - [ ] **Rank-up alert** — animated notification when a new global or regional rank milestone is hit
-- [ ] **Hosted Version** — Hosted version for those who don't want to mess with the easy local installation.
+- [ ] **Hosted Version** — hosted version for those who don't want to deal with a local installation
 
 ---
 
