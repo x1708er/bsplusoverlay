@@ -1,0 +1,84 @@
+name: Build & Release
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      - name: Build with PyInstaller
+        run: pyinstaller BSPlusOverlay.spec
+      - name: Build installer with Inno Setup
+        run: iscc installer\installer.iss
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: Output/*.exe
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      - name: Build with PyInstaller
+        run: pyinstaller BSPlusOverlay.spec
+      - name: Package as tar.gz
+        run: tar -czf BSPlusOverlay-Linux.tar.gz -C dist BSPlusOverlay
+      - uses: actions/upload-artifact@v4
+        with:
+          name: linux-tarball
+          path: BSPlusOverlay-Linux.tar.gz
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+      - name: Build with PyInstaller
+        run: pyinstaller BSPlusOverlay.spec
+      - name: Package as DMG
+        run: |
+          hdiutil create -volname "BSPlusOverlay" \
+            -srcfolder dist/BSPlusOverlay \
+            -ov -format UDZO \
+            BSPlusOverlay-macOS.dmg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: macos-dmg
+          path: BSPlusOverlay-macOS.dmg
+
+  release:
+    needs: [build-windows, build-linux, build-macos]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            artifacts/windows-installer/*.exe
+            artifacts/linux-tarball/*.tar.gz
+            artifacts/macos-dmg/*.dmg

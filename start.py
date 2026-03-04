@@ -16,7 +16,9 @@ import os
 
 PORT = 7273
 URL = f"http://localhost:{PORT}/settings.html"
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = (os.path.dirname(sys.executable)
+            if getattr(sys, 'frozen', False)
+            else os.path.dirname(os.path.abspath(__file__)))
 
 
 def check_python_version():

@@ -7,6 +7,7 @@ check()  → prüft ob ein Update verfügbar ist (GitHub API)
 apply()  → lädt ZIP herunter und überschreibt alle Dateien außer config.json
 """
 
+import sys
 import urllib.request
 import urllib.error
 import json
@@ -22,8 +23,13 @@ VERSION_FILE = ".version"
 # Dateien, die beim Update NIE überschrieben werden (exakter relativer Pfad ab Repo-Root)
 SKIP_FILES = {"config.json"}
 
+# Dateiendungen, die im Frozen-Modus übersprungen werden (Binary ist self-contained)
+_FROZEN_SKIP_EXTS = {'.py', '.sh', '.spec', '.iss', '.md', '.yml', '.yaml'}
+
 
 def _base_dir():
+    if getattr(sys, 'frozen', False):
+        return os.path.dirname(sys.executable)
     return os.path.dirname(os.path.abspath(__file__))
 
 
@@ -111,6 +117,12 @@ def apply():
                     # Dateien, die niemals überschrieben werden
                     if rel in SKIP_FILES:
                         continue
+
+                    # Im Frozen-Modus: nur Web-Assets aktualisieren, keine Skripte
+                    if getattr(sys, 'frozen', False):
+                        _, ext = os.path.splitext(rel)
+                        if ext.lower() in _FROZEN_SKIP_EXTS:
+                            continue
 
                     dest = os.path.join(base, rel)
                     os.makedirs(os.path.dirname(dest), exist_ok=True)
