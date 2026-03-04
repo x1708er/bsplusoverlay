@@ -8,7 +8,7 @@ Compression=lzma
 SolidCompression=yes
 
 [Files]
-Source: "dist\BSPlusOverlay\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "{#SourcePath}\..\dist\BSPlusOverlay\*"; DestDir: "{app}"; Flags: recursesubdirs
 
 [Icons]
 Name: "{group}\BSPlus Overlay";         Filename: "{app}\BSPlusOverlay.exe"
