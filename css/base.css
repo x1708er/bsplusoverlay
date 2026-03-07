@@ -1064,11 +1064,21 @@ body.anim-none #overlay-playing.leaving      { animation: none !important; }
 
 .mp-row {
   display: grid;
-  grid-template-columns: 20px 1fr 70px 52px 40px 36px;
+  grid-template-columns: 20px 1fr 70px 52px 40px 36px auto;
   gap: 0 8px;
   align-items: center;
   padding-bottom: 3px;
 }
+
+.mp-pb-delta {
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  opacity: 0.9;
+}
+.mp-pb-delta.pb-ahead  { color: #4caf50; }
+.mp-pb-delta.pb-behind { color: #ff5555; }
 
 .mp-acc-graph {
   display: block;

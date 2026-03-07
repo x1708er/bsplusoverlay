@@ -128,6 +128,33 @@ const BeatLeader = (() => {
     return scores[0] || null;
   }
 
+  async function fetchMapScoresForPlayer(playerId, levelId, difficulty, count = 10) {
+    if (!playerId || !levelId || !BASE) return [];
+    const hashMatch = levelId.match(/custom_level_([0-9A-Fa-f]+)/i);
+    const hash = hashMatch ? hashMatch[1].toLowerCase() : null;
+    if (!hash) return [];
+    try {
+      const url = `${BASE}/player/${encodeURIComponent(playerId)}/scores` +
+        `?sortBy=date&order=desc&count=${count}&type=0`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      const allScores = data.data || data.scores || [];
+      const normalizedDiff = normalizeDifficulty(difficulty);
+      const matched = allScores.filter(s => {
+        const song = s.leaderboard?.song || {};
+        const songHash = (song.hash || '').toLowerCase();
+        const diff = normalizeDifficulty(s.leaderboard?.difficulty?.difficultyName || '');
+        return songHash === hash && diff === normalizedDiff;
+      });
+      return matched.map(s => ({
+        modifiedScore: s.modifiedScore || s.baseScore || null,
+      }));
+    } catch {
+      return [];
+    }
+  }
+
   function timeAgo(isoString) {
     if (!isoString) return null;
     const diff = Date.now() - new Date(isoString).getTime();
@@ -209,6 +236,7 @@ const BeatLeader = (() => {
     fetchPlayerInfo,
     fetchAnyPlayerInfo,
     fetchMapScores,
+    fetchMapScoresForPlayer,
     fetchScoreForMap,
     fetchLeaderboard,
   };

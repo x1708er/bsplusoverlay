@@ -115,6 +115,7 @@ let shScrollStep = 0;
 let multiplayerScores = []; // [{ id, name, score, accuracy, combo, missCount, rank }]
 let mpAccHistory = {};      // { [playerId]: [{t, acc}] } — sampled every ≥0.5 s
 let mpPlayerInfoCache = {}; // { [playerId]: { rank, countryRank, country, pp } | null }
+let mpPbScores = {};        // { [playerId]: number | null } — null = pending/no PB
 
 // --- Career counter state ---
 let sessionHits = 0;
@@ -304,6 +305,9 @@ function renderMultiplayerPanel(scores) {
     return;
   }
   const myId = BeatLeader.getPlayerId();
+  const showPBDelta = Config.get('showPBDelta') !== false;
+  const duration = currentMapInfo ? currentMapInfo.duration / 1000 : 0;
+  const progress = duration > 0 && songElapsed > 0 ? Math.min(1, songElapsed / duration) : 0;
   const sorted = [...scores].sort((a, b) => (b.score || 0) - (a.score || 0));
   list.innerHTML = sorted.map((s, i) => {
     const isMe     = myId && s.id === myId;
@@ -323,6 +327,11 @@ function renderMultiplayerPanel(scores) {
       if (blInfo.pp) parts.push(`${Math.round(blInfo.pp).toLocaleString()}pp`);
       if (parts.length) blSubHtml = `<div class="mp-bl-sub">${parts.join(' · ')}</div>`;
     }
+    const pb = showPBDelta && s.id ? mpPbScores[s.id] : undefined;
+    const pbDelta = pb && progress > 0 ? Math.round((s.score || 0) - progress * pb) : null;
+    const pbHtml = pbDelta != null
+      ? `<span class="mp-pb-delta ${pbDelta >= 0 ? 'pb-ahead' : 'pb-behind'}">${pbDelta >= 0 ? '+' : ''}${pbDelta.toLocaleString()} PB</span>`
+      : '';
     return `
       <div class="mp-entry${isMe ? ' mp-entry-me' : ''}">
         <div class="mp-row">
@@ -332,6 +341,7 @@ function renderMultiplayerPanel(scores) {
           <span class="mp-acc${accCls}">${accStr}</span>
           <span class="mp-miss">${missStr}</span>
           <span class="mp-streak${strkCls ? ` ${strkCls}` : ''}">${combo}</span>
+          ${pbHtml}
         </div>
         ${blSubHtml}
         <canvas class="mp-acc-graph" width="356" height="18" data-pid="${s.id || ''}"></canvas>
@@ -579,6 +589,7 @@ BSPlusWS.onGameState = async ({ state }) => {
     multiplayerScores = [];
     mpAccHistory = {};
     mpPlayerInfoCache = {};
+    mpPbScores = {};
     setVisible('multiplayer-panel', false);
     stopSongTimer();
     await flushSession();
@@ -686,6 +697,7 @@ BSPlusWS.onMapInfo = async (info) => {
   // Reset multiplayer panel
   multiplayerScores = [];
   mpAccHistory = {};
+  mpPbScores = {};
   setVisible('multiplayer-panel', false);
 
   // Reset accuracy graph
@@ -856,9 +868,10 @@ BSPlusWS.onMultiplayerScore = (scores) => {
       }
     }
   }
-  // Fetch BeatLeader profile for any player not yet cached
+  // Fetch BeatLeader profile and PB for any player not yet cached
   for (const s of scores) {
-    if (s.id && !(s.id in mpPlayerInfoCache)) {
+    if (!s.id) continue;
+    if (!(s.id in mpPlayerInfoCache)) {
       mpPlayerInfoCache[s.id] = null; // mark as pending so we don't re-fetch
       BeatLeader.fetchAnyPlayerInfo(s.id).then(info => {
         if (info) {
@@ -870,6 +883,17 @@ BSPlusWS.onMultiplayerScore = (scores) => {
           };
           renderMultiplayerPanel(multiplayerScores);
         }
+      });
+    }
+    if (!(s.id in mpPbScores) && currentMapInfo) {
+      mpPbScores[s.id] = null; // mark as pending
+      const { level_id, difficulty } = currentMapInfo;
+      BeatLeader.fetchMapScoresForPlayer(s.id, level_id, difficulty, 10).then(blScores => {
+        const pb = blScores.length > 0
+          ? (Math.max(...blScores.map(b => b.modifiedScore || 0)) || null)
+          : null;
+        mpPbScores[s.id] = pb;
+        renderMultiplayerPanel(multiplayerScores);
       });
     }
   }
