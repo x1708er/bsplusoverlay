@@ -63,6 +63,11 @@ body {
   border: 1px solid var(--border);
 }
 
+#multiplayer-panel {
+  background: var(--bg-bl);
+  border: 1px solid var(--border);
+}
+
 #result-screen {
   background: var(--bg-card);
   border: 1px solid var(--border);

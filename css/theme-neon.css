@@ -110,11 +110,19 @@ body {
   text-shadow: 0 0 8px rgba(255, 165, 0, 0.7);
 }
 
-#leaderboard-panel {
+#leaderboard-panel,
+#multiplayer-panel {
   background: var(--bg-bl);
   border: 1px solid rgba(180, 74, 255, 0.35);
   box-shadow: 0 0 12px rgba(180, 74, 255, 0.08);
 }
+
+.mp-entry-me {
+  border-left-color: var(--neon-blue);
+  background: rgba(0, 200, 255, 0.07);
+}
+
+.mp-name-me { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,200,255,0.5); }
 
 .lb-row.lb-me .lb-name { color: var(--neon-blue); text-shadow: 0 0 8px rgba(0,200,255,0.5); }
 
@@ -136,3 +144,9 @@ body {
   color: var(--neon-blue);
   text-shadow: 0 0 18px rgba(0, 200, 255, 0.5);
 }
+
+/* Neon glow on accuracy colors */
+#score-panel #accuracy.acc-good { color: #00e676; text-shadow: 0 0 10px rgba(0,230,118,0.6); }
+#score-panel #accuracy.acc-ok   { color: #ffcc00; text-shadow: 0 0 10px rgba(255,204,0,0.6); }
+#score-panel #accuracy.acc-bad  { color: #ff4444; text-shadow: 0 0 10px rgba(255,68,68,0.6); }
+.streak-epic { text-shadow: 0 0 12px rgba(255,80,0,0.8); }

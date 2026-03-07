@@ -18,6 +18,7 @@ body {
 #beatleader-panel,
 #bl-history-panel,
 #leaderboard-panel,
+#multiplayer-panel,
 #player-banner,
 #career-stats,
 #session-stats-panel {
@@ -27,6 +28,13 @@ body {
   -webkit-backdrop-filter: blur(16px) saturate(180%);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
+
+.mp-entry-me {
+  border-left-color: rgba(200, 232, 255, 0.9);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mp-name-me { color: var(--accent); }
 
 #score-panel {
   background: var(--glass-bg-strong);

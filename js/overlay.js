@@ -48,6 +48,31 @@ function triggerAnim(id, className, duration = 600) {
   setTimeout(() => node.classList.remove(className), duration);
 }
 
+// --- Accuracy & Streak color helpers ---
+function accColorClass(accuracy) {
+  if (accuracy >= 0.95) return 'acc-good';
+  if (accuracy >= 0.90) return 'acc-ok';
+  return 'acc-bad';
+}
+
+function streakClass(combo) {
+  if (combo >= 200) return 'streak-epic';
+  if (combo >= 100) return 'streak-hot';
+  if (combo >= 50)  return 'streak-warm';
+  return '';
+}
+
+function applyAccColor(el, accuracy) {
+  el.classList.remove('acc-good', 'acc-ok', 'acc-bad');
+  el.classList.add(accColorClass(accuracy));
+}
+
+function applyStreakClass(el, combo) {
+  el.classList.remove('streak-warm', 'streak-hot', 'streak-epic');
+  const cls = streakClass(combo);
+  if (cls) el.classList.add(cls);
+}
+
 const DIFF_COLORS = {
   easy: '#3cb371',
   normal: '#59b0f4',
@@ -85,6 +110,10 @@ let songWasPlayed = false;  // true once at least one score event arrived for cu
 let songHistory = [];       // [{ name, artist, difficulty, coverRaw, score, accuracy, missCount, health, ts }], newest first
 let shScrollInterval = null;
 let shScrollStep = 0;
+
+// --- Multiplayer state ---
+let multiplayerScores = []; // [{ id, name, score, accuracy, combo, missCount, rank }]
+let mpAccHistory = {};      // { [playerId]: [{t, acc}] } — sampled every ≥0.5 s
 
 // --- Career counter state ---
 let sessionHits = 0;
@@ -263,6 +292,49 @@ function renderLeaderboard(scores) {
       </div>`;
   }).join('');
   setVisible('leaderboard-panel', true);
+}
+
+function renderMultiplayerPanel(scores) {
+  const list = el('mp-list');
+  if (!list) return;
+  const show = Config.get('showMultiplayer') !== false;
+  if (!show || scores.length < 2) {
+    setVisible('multiplayer-panel', false);
+    return;
+  }
+  const myId = BeatLeader.getPlayerId();
+  const sorted = [...scores].sort((a, b) => (b.score || 0) - (a.score || 0));
+  list.innerHTML = sorted.map((s, i) => {
+    const isMe     = myId && s.id === myId;
+    const rankCls  = i < 3 ? ` mp-rank-${i + 1}` : '';
+    const accStr   = s.accuracy != null ? `${(s.accuracy * 100).toFixed(2)}%` : '—';
+    const missStr  = s.missCount != null ? `${s.missCount} miss` : '';
+    const accCls   = s.accuracy != null ? ` ${accColorClass(s.accuracy)}` : '';
+    const combo    = s.combo || 0;
+    const strkCls  = streakClass(combo);
+    return `
+      <div class="mp-entry${isMe ? ' mp-entry-me' : ''}">
+        <div class="mp-row">
+          <span class="mp-rank${rankCls}">${i + 1}</span>
+          <span class="mp-name${isMe ? ' mp-name-me' : ''}">${s.name || '?'}</span>
+          <span class="mp-score">${(s.score || 0).toLocaleString()}</span>
+          <span class="mp-acc${accCls}">${accStr}</span>
+          <span class="mp-miss">${missStr}</span>
+          <span class="mp-streak${strkCls ? ` ${strkCls}` : ''}">${combo}</span>
+        </div>
+        <canvas class="mp-acc-graph" width="356" height="18" data-pid="${s.id || ''}"></canvas>
+      </div>`;
+  }).join('');
+
+  // Draw graphs after DOM is updated
+  list.querySelectorAll('canvas.mp-acc-graph').forEach(canvas => {
+    const pid = canvas.dataset.pid;
+    const history = mpAccHistory[pid] || [];
+    const isMe = myId && pid === myId;
+    drawMpAccGraph(canvas, history, isMe);
+  });
+
+  setVisible('multiplayer-panel', true);
 }
 
 function renderBLHistory(scores) {
@@ -445,6 +517,8 @@ function applyLayoutConfig() {
   if (!cfg('showPBDelta'))    setVisible('pb-delta',         false);
   if (!cfg('showAccGraph'))   setVisible('acc-graph',        false);
   if (Config.get('showLeaderboard') !== true) setVisible('leaderboard-panel', false);
+  if (!cfg('showMultiplayer')) setVisible('multiplayer-panel', false);
+  else if (multiplayerScores.length >= 2) renderMultiplayerPanel(multiplayerScores);
 }
 
 // --- BSPlus event handlers ---
@@ -490,6 +564,9 @@ BSPlusWS.onGameState = async ({ state }) => {
     stopHistoryScroll();
   } else {
     captureAndAddToHistory();
+    multiplayerScores = [];
+    mpAccHistory = {};
+    setVisible('multiplayer-panel', false);
     stopSongTimer();
     await flushSession();
     // Animate out overlay-playing before hiding
@@ -579,6 +656,9 @@ BSPlusWS.onMapInfo = async (info) => {
   setText('combo', '0');
   setText('miss', '0');
   setProgress('health-bar', 1);
+  el('accuracy')?.classList.remove('acc-good', 'acc-ok', 'acc-bad');
+  el('combo')?.classList.remove('streak-warm', 'streak-hot', 'streak-epic');
+  setVisible('streak-badge', false);
 
   // Hide BeatLeader panels until we have data
   setVisible('beatleader-panel', false);
@@ -589,6 +669,11 @@ BSPlusWS.onMapInfo = async (info) => {
   setVisible('pb-delta', false);
   const pbEl = el('pb-delta');
   if (pbEl) pbEl.classList.remove('pb-ahead', 'pb-behind');
+
+  // Reset multiplayer panel
+  multiplayerScores = [];
+  mpAccHistory = {};
+  setVisible('multiplayer-panel', false);
 
   // Reset accuracy graph
   accHistory = [];
@@ -690,6 +775,24 @@ BSPlusWS.onScore = (score) => {
   setText('miss', `${missCount} miss`);
   setProgress('health-bar', health);
 
+  // Accuracy color
+  const accEl = el('accuracy');
+  if (accEl) applyAccColor(accEl, accuracy);
+
+  // Streak badge + combo color
+  const streakEl = el('streak-badge');
+  if (streakEl) {
+    if (combo > 0) {
+      streakEl.textContent = `🔥 ${combo}`;
+      applyStreakClass(streakEl, combo);
+      setVisible('streak-badge', true);
+    } else {
+      setVisible('streak-badge', false);
+    }
+  }
+  const comboEl = el('combo');
+  if (comboEl) applyStreakClass(comboEl, combo);
+
   // duration stored in ms, time from scoreEvent in seconds
   const duration = (currentMapInfo?.duration || 0) / 1000;
   if (duration > 0) {
@@ -723,6 +826,24 @@ BSPlusWS.onScore = (score) => {
       drawAccGraph();
     }
   }
+};
+
+BSPlusWS.onMultiplayerScore = (scores) => {
+  multiplayerScores = scores;
+  // Sample each player's accuracy into history (≥0.5 s between samples)
+  const t = songElapsed;
+  if (t > 0) {
+    for (const s of scores) {
+      if (!s.id || s.accuracy == null) continue;
+      if (!mpAccHistory[s.id]) mpAccHistory[s.id] = [];
+      const hist = mpAccHistory[s.id];
+      const last = hist[hist.length - 1];
+      if (!last || t - last.t >= 0.5) {
+        hist.push({ t, acc: s.accuracy * 100 });
+      }
+    }
+  }
+  renderMultiplayerPanel(scores);
 };
 
 BSPlusWS.onPause = () => {
@@ -785,6 +906,52 @@ function drawAccGraph() {
   ctx.beginPath();
   ctx.arc(toX(last.t), toY(last.acc), 2.5, 0, Math.PI * 2);
   ctx.fillStyle = '#60b0ff';
+  ctx.fill();
+}
+
+function drawMpAccGraph(canvas, history, isMe) {
+  if (!canvas || history.length < 2) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  const duration = (currentMapInfo?.duration || 0) / 1000;
+  const timeSpan = duration > 0 ? duration : history[history.length - 1].t || 1;
+
+  const accValues = history.map(p => p.acc);
+  const minAcc = Math.max(0, Math.min(...accValues) - 1);
+  const accRange = (100 - minAcc) || 1;
+
+  const toX = t => (t / timeSpan) * W;
+  const toY = acc => H - 1 - ((acc - minAcc) / accRange) * (H - 2);
+
+  const color = isMe ? 'rgba(96, 176, 255, 0.9)' : 'rgba(200, 200, 220, 0.65)';
+  const fill  = isMe ? 'rgba(96, 176, 255, 0.12)' : 'rgba(200, 200, 220, 0.07)';
+
+  const first = history[0];
+  const last  = history[history.length - 1];
+
+  ctx.beginPath();
+  ctx.moveTo(toX(first.t), toY(first.acc));
+  for (let i = 1; i < history.length; i++) ctx.lineTo(toX(history[i].t), toY(history[i].acc));
+  ctx.lineTo(toX(last.t), H);
+  ctx.lineTo(toX(first.t), H);
+  ctx.closePath();
+  ctx.fillStyle = fill;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(toX(first.t), toY(first.acc));
+  for (let i = 1; i < history.length; i++) ctx.lineTo(toX(history[i].t), toY(history[i].acc));
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.5;
+  ctx.lineJoin = 'round';
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(toX(last.t), toY(last.acc), 2, 0, Math.PI * 2);
+  ctx.fillStyle = color;
   ctx.fill();
 }
 
@@ -856,6 +1023,7 @@ function buildSettingsPanelHTML() {
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-pbdelta"> PB-Delta</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-accgraph"> Acc-Graph</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-leaderboard"> Leaderboard</label>
+        <label class="ov-check-label"><input type="checkbox" id="ov-chk-multiplayer"> Multiplayer</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-songhistory"> Song-Verlauf</label>
         <label class="ov-check-label"><input type="checkbox" id="ov-chk-resultscreen"> Ergebnis-Screen</label>
       </div>
@@ -905,6 +1073,7 @@ function initOverlaySettings() {
     { id: 'ov-chk-pbdelta',     key: 'showPBDelta'     },
     { id: 'ov-chk-accgraph',     key: 'showAccGraph'     },
     { id: 'ov-chk-leaderboard',  key: 'showLeaderboard',  defaultOn: false },
+    { id: 'ov-chk-multiplayer',  key: 'showMultiplayer'  },
     { id: 'ov-chk-songhistory',  key: 'showSongHistory'  },
     { id: 'ov-chk-resultscreen', key: 'showResultScreen' },
   ];
@@ -1074,6 +1243,7 @@ function initOverlaySettings() {
   const params = new URLSearchParams(window.location.search);
   if (params.get('dev') === '1') {
     setVisible('dev-link', true);
+    document.body.classList.add('dev-mode');
   }
 })();
 

@@ -33,8 +33,9 @@ function loadSettings() {
   document.getElementById('chk-show-progress').checked = Config.get('showProgress')   !== false;
   document.getElementById('chk-show-score').checked    = Config.get('showScorePanel') !== false;
   document.getElementById('chk-show-health').checked   = Config.get('showHealthBar')  !== false;
-  document.getElementById('chk-show-pbdelta').checked  = Config.get('showPBDelta')    !== false;
-  document.getElementById('chk-show-accgraph').checked = Config.get('showAccGraph')   !== false;
+  document.getElementById('chk-show-pbdelta').checked       = Config.get('showPBDelta')      !== false;
+  document.getElementById('chk-show-accgraph').checked      = Config.get('showAccGraph')     !== false;
+  document.getElementById('chk-show-multiplayer').checked   = Config.get('showMultiplayer')  !== false;
   document.getElementById('input-custom-css').value    = Config.get('customCSS')      || '';
   document.getElementById('input-font').value          = Config.get('customFont')     || '';
   selectTheme(Config.get('theme'), false);
@@ -103,8 +104,9 @@ function saveAll() {
   const showProgress   = document.getElementById('chk-show-progress').checked;
   const showScorePanel = document.getElementById('chk-show-score').checked;
   const showHealthBar  = document.getElementById('chk-show-health').checked;
-  const showPBDelta    = document.getElementById('chk-show-pbdelta').checked;
-  const showAccGraph   = document.getElementById('chk-show-accgraph').checked;
+  const showPBDelta      = document.getElementById('chk-show-pbdelta').checked;
+  const showAccGraph     = document.getElementById('chk-show-accgraph').checked;
+  const showMultiplayer  = document.getElementById('chk-show-multiplayer').checked;
   const customCSS      = document.getElementById('input-custom-css').value;
   const selectedAnim   = document.querySelector('.anim-tile.selected');
   const animationStyle = selectedAnim ? selectedAnim.dataset.anim : 'slide';
@@ -115,7 +117,7 @@ function saveAll() {
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain, blShowHistory, blHistoryCount,
     showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
     overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph,
-    customCSS, animationStyle, customFont,
+    showMultiplayer, customCSS, animationStyle, customFont,
   }).then(() => showStatus('Einstellungen gespeichert!'));
 }
 

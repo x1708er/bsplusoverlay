@@ -6,6 +6,11 @@
  *   Handshake: { _type: "handshake", playerName, gameVersion, playerPlatformId, ... }
  *   All game events: { _type: "event", _event: "<name>", <camelCasePayloadField>: {...} }
  *     _event values: "gameState" | "mapInfo" | "score" | "pause" | "resume"
+ *
+ * Multiplayer event (sent when ≥2 players are in the lobby):
+ *   { _type: "event", _event: "multiplayerScore", scores: [
+ *     { id, name, score, accuracy(0–1), combo, missCount, rank }
+ *   ]}
  */
 const BSPlusWS = (() => {
   let ws = null;
@@ -87,6 +92,9 @@ const BSPlusWS = (() => {
         case 'resume':
           BSPlusWS.onResume();
           break;
+        case 'multiplayerScore':
+          BSPlusWS.onMultiplayerScore(data.scores || []);
+          break;
         default:
           break;
       }
@@ -104,5 +112,6 @@ const BSPlusWS = (() => {
     onScore: (_data) => {},
     onPause: () => {},
     onResume: () => {},
+    onMultiplayerScore: (_scores) => {},
   };
 })();

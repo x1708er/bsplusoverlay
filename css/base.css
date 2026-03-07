@@ -753,6 +753,14 @@ body.pos-top-right #ov-settings-panel.open {
 }
 
 /* =====================
+   Dev mode background
+   ===================== */
+
+body.dev-mode {
+  background: #0d1f12;
+}
+
+/* =====================
    Dev link
    ===================== */
 
@@ -823,6 +831,7 @@ body.pos-top-right #ov-settings-panel.open {
 #overlay-playing.entering > *:nth-child(5) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 145ms; }
 #overlay-playing.entering > *:nth-child(6) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 170ms; }
 #overlay-playing.entering > *:nth-child(7) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 195ms; }
+#overlay-playing.entering > *:nth-child(8) { animation: panelIn 0.45s cubic-bezier(0.22,1,0.36,1) both; animation-delay: 218ms; }
 
 /* Menu overlay entrance */
 #overlay-menu:not(.hidden) {
@@ -874,7 +883,8 @@ body.anim-fade #overlay-playing.entering > *:nth-child(3),
 body.anim-fade #overlay-playing.entering > *:nth-child(4),
 body.anim-fade #overlay-playing.entering > *:nth-child(5),
 body.anim-fade #overlay-playing.entering > *:nth-child(6),
-body.anim-fade #overlay-playing.entering > *:nth-child(7) {
+body.anim-fade #overlay-playing.entering > *:nth-child(7),
+body.anim-fade #overlay-playing.entering > *:nth-child(8) {
   animation-name: panelInFade;
   animation-timing-function: ease;
 }
@@ -892,7 +902,8 @@ body.anim-bounce #overlay-playing.entering > *:nth-child(3),
 body.anim-bounce #overlay-playing.entering > *:nth-child(4),
 body.anim-bounce #overlay-playing.entering > *:nth-child(5),
 body.anim-bounce #overlay-playing.entering > *:nth-child(6),
-body.anim-bounce #overlay-playing.entering > *:nth-child(7) {
+body.anim-bounce #overlay-playing.entering > *:nth-child(7),
+body.anim-bounce #overlay-playing.entering > *:nth-child(8) {
   animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 body.anim-bounce #overlay-menu:not(.hidden)    { animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1); }
@@ -1010,6 +1021,110 @@ body.anim-none #overlay-playing.leaving      { animation: none !important; }
 
 .sh-fc   { color: #4caf50; opacity: 1 !important; }
 .sh-fail { color: #ff4444; opacity: 1 !important; }
+
+/* =====================
+   Multiplayer Panel
+   ===================== */
+
+#multiplayer-panel {
+  padding: 6px 0 2px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  overflow: hidden;
+}
+
+#mp-title {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  opacity: 0.4;
+  margin-bottom: 4px;
+  padding: 0 12px;
+}
+
+#mp-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.mp-entry {
+  padding: 5px 12px 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  position: relative;
+}
+
+.mp-entry:last-child { border-bottom: none; }
+
+/* Eigener Eintrag: linker Akzentbalken */
+.mp-entry-me {
+  border-left: 3px solid #60b0ff;
+  padding-left: 9px;
+  background: rgba(96, 176, 255, 0.06);
+}
+
+.mp-row {
+  display: grid;
+  grid-template-columns: 20px 1fr 70px 52px 40px 36px;
+  gap: 0 8px;
+  align-items: center;
+  padding-bottom: 3px;
+}
+
+.mp-acc-graph {
+  display: block;
+  width: 100%;
+  border-radius: 3px;
+  opacity: 0.85;
+}
+
+.mp-rank {
+  font-weight: 800;
+  font-size: 0.72rem;
+  opacity: 0.45;
+  text-align: center;
+}
+
+/* Podium-Farben */
+.mp-rank-1 { color: #ffd700; opacity: 1; text-shadow: 0 0 6px rgba(255,215,0,0.4); }
+.mp-rank-2 { color: #c0c0c0; opacity: 1; }
+.mp-rank-3 { color: #cd7f32; opacity: 1; }
+
+.mp-name         { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mp-name-me      { color: #60b0ff; }
+.mp-score        { font-weight: 700; text-align: right; font-variant-numeric: tabular-nums; }
+.mp-acc          { text-align: right; opacity: 0.75; font-variant-numeric: tabular-nums; }
+.mp-miss         { text-align: right; opacity: 0.4; font-size: 0.63rem; }
+.mp-streak       { text-align: right; font-weight: 700; font-size: 0.68rem; opacity: 0.7; }
+.mp-streak.streak-warm { color: #ffcc00; opacity: 1; }
+.mp-streak.streak-hot  { color: #ff8800; opacity: 1; }
+.mp-streak.streak-epic { color: #ff3300; opacity: 1; text-shadow: 0 0 6px rgba(255,80,0,0.4); }
+
+/* =====================
+   Accuracy Colors
+   ===================== */
+
+#score-panel #accuracy.acc-good { color: #4caf50; }
+#score-panel #accuracy.acc-ok   { color: #ffb300; }
+#score-panel #accuracy.acc-bad  { color: #ff5252; }
+
+.mp-acc.acc-good { color: #4caf50; opacity: 1; }
+.mp-acc.acc-ok   { color: #ffb300; opacity: 1; }
+.mp-acc.acc-bad  { color: #ff5252; opacity: 1; }
+
+/* =====================
+   Streak Colors
+   ===================== */
+
+.streak-warm { color: #ffcc00; }
+.streak-hot  { color: #ff8800; }
+.streak-epic { color: #ff3300; text-shadow: 0 0 8px rgba(255,80,0,0.5); }
+
+#streak-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin-top: 2px;
+}
 
 /* =====================
    Result Screen

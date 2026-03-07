@@ -2,8 +2,8 @@
   "theme": "neon",
   "wsHost": "localhost",
   "wsPort": 2947,
-  "totalHits": 1128,
-  "totalMisses": 5307,
+  "totalHits": 1701,
+  "totalMisses": 6516,
   "statsEnabled": true,
   "blShowPP": true,
   "blShowAcc": true,
@@ -16,7 +16,7 @@
   "blShowHistory": true,
   "blHistoryCount": 5,
   "overlayPosition": "bottom-left",
-  "overlayScale": 1.5,
+  "overlayScale": 1.2,
   "showSongCard": true,
   "showProgress": true,
   "showScorePanel": true,
@@ -29,5 +29,8 @@
   "songHistoryScrollSpeed": 3000,
   "songHistoryVisibleRows": 3,
   "showSessionStats": true,
-  "customCSS": ""
+  "customCSS": "",
+  "customFont": "",
+  "animationStyle": "slide",
+  "showLeaderboard": true
 }
