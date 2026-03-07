@@ -114,6 +114,7 @@ let shScrollStep = 0;
 // --- Multiplayer state ---
 let multiplayerScores = []; // [{ id, name, score, accuracy, combo, missCount, rank }]
 let mpAccHistory = {};      // { [playerId]: [{t, acc}] } — sampled every ≥0.5 s
+let mpPlayerInfoCache = {}; // { [playerId]: { rank, countryRank, country, pp } | null }
 
 // --- Career counter state ---
 let sessionHits = 0;
@@ -312,6 +313,16 @@ function renderMultiplayerPanel(scores) {
     const accCls   = s.accuracy != null ? ` ${accColorClass(s.accuracy)}` : '';
     const combo    = s.combo || 0;
     const strkCls  = streakClass(combo);
+    const blInfo   = s.id ? mpPlayerInfoCache[s.id] : undefined;
+    let blSubHtml  = '';
+    if (blInfo) {
+      const parts = [];
+      if (blInfo.rank) parts.push(`#${blInfo.rank.toLocaleString()}`);
+      if (blInfo.countryRank && blInfo.country)
+        parts.push(`#${blInfo.countryRank.toLocaleString()} ${blInfo.country.toUpperCase()}`);
+      if (blInfo.pp) parts.push(`${Math.round(blInfo.pp).toLocaleString()}pp`);
+      if (parts.length) blSubHtml = `<div class="mp-bl-sub">${parts.join(' · ')}</div>`;
+    }
     return `
       <div class="mp-entry${isMe ? ' mp-entry-me' : ''}">
         <div class="mp-row">
@@ -322,6 +333,7 @@ function renderMultiplayerPanel(scores) {
           <span class="mp-miss">${missStr}</span>
           <span class="mp-streak${strkCls ? ` ${strkCls}` : ''}">${combo}</span>
         </div>
+        ${blSubHtml}
         <canvas class="mp-acc-graph" width="356" height="18" data-pid="${s.id || ''}"></canvas>
       </div>`;
   }).join('');
@@ -566,6 +578,7 @@ BSPlusWS.onGameState = async ({ state }) => {
     captureAndAddToHistory();
     multiplayerScores = [];
     mpAccHistory = {};
+    mpPlayerInfoCache = {};
     setVisible('multiplayer-panel', false);
     stopSongTimer();
     await flushSession();
@@ -841,6 +854,23 @@ BSPlusWS.onMultiplayerScore = (scores) => {
       if (!last || t - last.t >= 0.5) {
         hist.push({ t, acc: s.accuracy * 100 });
       }
+    }
+  }
+  // Fetch BeatLeader profile for any player not yet cached
+  for (const s of scores) {
+    if (s.id && !(s.id in mpPlayerInfoCache)) {
+      mpPlayerInfoCache[s.id] = null; // mark as pending so we don't re-fetch
+      BeatLeader.fetchAnyPlayerInfo(s.id).then(info => {
+        if (info) {
+          mpPlayerInfoCache[s.id] = {
+            rank: info.rank || null,
+            countryRank: info.countryRank || null,
+            country: info.country || null,
+            pp: info.pp || null,
+          };
+          renderMultiplayerPanel(multiplayerScores);
+        }
+      });
     }
   }
   renderMultiplayerPanel(scores);

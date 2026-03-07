@@ -16,6 +16,7 @@ const BeatLeader = (() => {
 
   let cachedPlayerId = null;
   let cachedPlayerInfo = null;
+  const anyPlayerInfoCache = new Map(); // { playerId → playerData }
 
   function setPlayerId(id) {
     if (id && id !== cachedPlayerId) {
@@ -38,6 +39,21 @@ const BeatLeader = (() => {
       const data = await res.json();
       cachedPlayerId = playerId;
       cachedPlayerInfo = data;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  async function fetchAnyPlayerInfo(playerId) {
+    if (!playerId || !BASE) return null;
+    if (anyPlayerInfoCache.has(playerId)) return anyPlayerInfoCache.get(playerId);
+    anyPlayerInfoCache.set(playerId, null); // mark pending
+    try {
+      const res = await fetch(`${BASE}/player/${encodeURIComponent(playerId)}`);
+      if (!res.ok) return null;
+      const data = await res.json();
+      anyPlayerInfoCache.set(playerId, data);
       return data;
     } catch {
       return null;
@@ -191,6 +207,7 @@ const BeatLeader = (() => {
     setPlayerId,
     getPlayerId,
     fetchPlayerInfo,
+    fetchAnyPlayerInfo,
     fetchMapScores,
     fetchScoreForMap,
     fetchLeaderboard,
