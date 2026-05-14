@@ -10,7 +10,6 @@ const Config = (() => {
     blShowPP: true, blShowAcc: true, blShowRank: true,
     blShowStars: true, blShowFC: true, blShowDate: false,
     blShowMaxPP: false, blShowPPGain: true,
-    blShowHistory: true, blHistoryCount: 5,
     overlayPosition: 'bottom-left', overlayScale: 1,
     showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true, showPBDelta: true, showAccGraph: true,
     showSongHistory: true, songHistoryCount: 8, songHistoryScroll: true, songHistoryScrollSpeed: 3000, songHistoryVisibleRows: 3,

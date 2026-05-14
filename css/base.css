@@ -369,39 +369,6 @@ body.pos-top-right #overlay-menu {
 }
 
 /* =====================
-   BeatLeader Score History
-   ===================== */
-
-#bl-history-panel {
-  padding: 6px 12px;
-  border-radius: 8px;
-  font-size: 0.72rem;
-}
-
-#bl-history-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.bl-hist-row {
-  display: grid;
-  grid-template-columns: 54px 60px 58px 62px 1fr;
-  gap: 0 8px;
-  align-items: center;
-  padding: 4px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.bl-hist-row:last-child { border-bottom: none; }
-
-.bl-hist-date { opacity: 0.45; }
-.bl-hist-acc  { font-weight: 600; }
-.bl-hist-fc   { opacity: 0.75; }
-.bl-hist-fc.is-fc { color: #4caf50; }
-.bl-hist-pp   { opacity: 0.85; }
-.bl-hist-rank { opacity: 0.55; text-align: right; }
-
-/* =====================
    Map Leaderboard Panel
    ===================== */
 

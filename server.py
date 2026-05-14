@@ -25,8 +25,20 @@ CONFIG_ROUTE = '/config'
 UPDATE_CHECK_ROUTE = '/update/check'
 UPDATE_APPLY_ROUTE = '/update/apply'
 
+# `.noupdate` is the dev-mode marker (same as in start.py). In dev mode we send
+# Cache-Control: no-store so browser caches don't serve stale JS/HTML across
+# edits. Released builds keep normal caching behaviour.
+BASE_DIR = (os.path.dirname(sys.executable) if getattr(sys, 'frozen', False)
+            else os.path.dirname(os.path.abspath(__file__)))
+DEV_MODE = os.path.exists(os.path.join(BASE_DIR, '.noupdate'))
+
 
 class Handler(http.server.SimpleHTTPRequestHandler):
+
+    def end_headers(self):
+        if DEV_MODE:
+            self.send_header('Cache-Control', 'no-store, must-revalidate')
+        super().end_headers()
 
     def do_OPTIONS(self):
         """Preflight-Anfragen beantworten."""
@@ -209,6 +221,8 @@ if __name__ == '__main__':
 
     with server_class(('', PORT), Handler) as httpd:
         print(f'BSPlus Overlay läuft auf  http://localhost:{PORT}/settings.html')
+        if DEV_MODE:
+            print('Dev-Modus (.noupdate vorhanden): Cache-Control: no-store aktiv.')
         print('Strg+C zum Beenden.\n')
         try:
             httpd.serve_forever()

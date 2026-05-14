@@ -359,27 +359,6 @@ function renderMultiplayerPanel(scores) {
   setVisible('multiplayer-panel', true);
 }
 
-function renderBLHistory(scores) {
-  const list = el('bl-history-list');
-  if (!list) return;
-  const show = Config.get('blShowHistory') !== false;
-  const count = Math.max(1, Math.min(10, parseInt(Config.get('blHistoryCount'), 10) || 5));
-  if (!show || scores.length === 0) {
-    setVisible('bl-history-panel', false);
-    return;
-  }
-  list.innerHTML = scores.slice(0, count).map(s => `
-    <div class="bl-hist-row">
-      <span class="bl-hist-date">${s.timeago || '—'}</span>
-      <span class="bl-hist-acc">${s.accuracy ? s.accuracy + '%' : '—'}</span>
-      <span class="bl-hist-fc${s.fc ? ' is-fc' : ''}">${s.fc ? 'FC' : s.misses + ' miss'}</span>
-      <span class="bl-hist-pp">${s.pp ? s.pp.toFixed(2) + 'pp' : '—'}</span>
-      <span class="bl-hist-rank">${s.rank ? '#' + s.rank : '—'}</span>
-    </div>
-  `).join('');
-  setVisible('bl-history-panel', true);
-}
-
 // --- Song History ---
 
 function captureAndAddToHistory() {
@@ -548,8 +527,17 @@ BSPlusWS.onConnectionChange = (connected) => {
   setVisible('connection-warning', !connected);
 };
 
+// Accepts a raw BL player id ("76561198…") or a profile URL
+// (https://beatleader.com/u/76561198…). Returns the id, or '' if input is empty.
+function extractBLPlayerId(s) {
+  if (!s) return '';
+  const t = String(s).trim();
+  const m = t.match(/\/u\/([^/?#]+)/);
+  return (m ? m[1] : t).trim();
+}
+
 async function loadPlayerAvatar(playerId) {
-  if (!playerId) return;
+  if (!playerId) return null;
   const info = await BeatLeader.fetchPlayerInfo(playerId);
   const avatarEl = el('player-avatar');
   if (avatarEl && info?.avatar) {
@@ -567,12 +555,17 @@ async function loadPlayerAvatar(playerId) {
     setText('player-bl-stats', parts.join(' · '));
     setVisible('player-bl-stats', true);
   }
+  return info;
 }
 
-BSPlusWS.onHandshake = ({ playerName, playerId }) => {
-  setText('player-name', playerName);
-  if (playerId) BeatLeader.setPlayerId(playerId);
-  loadPlayerAvatar(playerId);
+BSPlusWS.onHandshake = async ({ playerName, playerId }) => {
+  // BSPlus sometimes hands us null for both fields (e.g. Steam auth race).
+  // Fall back to the manual override from settings so the menu overlay still
+  // shows the player's avatar/rank/PP.
+  const effectiveId = playerId || extractBLPlayerId(Config.get('blPlayerId'));
+  if (effectiveId) BeatLeader.setPlayerId(effectiveId);
+  const info = await loadPlayerAvatar(effectiveId);
+  setText('player-name', playerName || info?.name || '');
 };
 
 BSPlusWS.onGameState = async ({ state }) => {
@@ -686,7 +679,6 @@ BSPlusWS.onMapInfo = async (info) => {
 
   // Hide BeatLeader panels until we have data
   setVisible('beatleader-panel', false);
-  setVisible('bl-history-panel', false);
 
   // Reset PB delta
   pbScore = null;
@@ -742,7 +734,6 @@ BSPlusWS.onMapInfo = async (info) => {
 
       setVisible('beatleader-panel', true);
     }
-    renderBLHistory(blScores);
 
     // Fetch global leaderboard (only if enabled, to avoid unnecessary requests)
     if (Config.get('showLeaderboard') === true) {

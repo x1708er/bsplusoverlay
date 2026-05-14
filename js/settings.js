@@ -7,6 +7,7 @@
 function loadSettings() {
   document.getElementById('input-ws-host').value = Config.get('wsHost');
   document.getElementById('input-ws-port').value = Config.get('wsPort');
+  document.getElementById('input-bl-player-id').value = Config.get('blPlayerId') || '';
   document.getElementById('chk-stats-enabled').checked  = Config.get('statsEnabled')    !== false;
   document.getElementById('chk-session-stats').checked  = Config.get('showSessionStats') !== false;
   document.getElementById('chk-bl-pp').checked    = Config.get('blShowPP')    !== false;
@@ -17,8 +18,6 @@ function loadSettings() {
   document.getElementById('chk-bl-date').checked   = Config.get('blShowDate')   !== false;
   document.getElementById('chk-bl-maxpp').checked  = Config.get('blShowMaxPP')  !== false;
   document.getElementById('chk-bl-ppgain').checked = Config.get('blShowPPGain') !== false;
-  document.getElementById('chk-bl-history').checked       = Config.get('blShowHistory') !== false;
-  document.getElementById('input-bl-history-count').value = Config.get('blHistoryCount') || 5;
   document.getElementById('chk-song-history').checked            = Config.get('showSongHistory') !== false;
   document.getElementById('chk-song-history-scroll').checked     = Config.get('songHistoryScroll') !== false;
   document.getElementById('input-song-history-count').value      = Config.get('songHistoryCount') || 8;
@@ -77,6 +76,7 @@ function selectTheme(theme, save = true) {
 function saveAll() {
   const wsHost = document.getElementById('input-ws-host').value.trim() || 'localhost';
   const wsPort = parseInt(document.getElementById('input-ws-port').value.trim(), 10) || 2947;
+  const blPlayerId = document.getElementById('input-bl-player-id').value.trim();
   const statsEnabled    = document.getElementById('chk-stats-enabled').checked;
   const showSessionStats = document.getElementById('chk-session-stats').checked;
   const selectedTile = document.querySelector('.theme-tile.selected');
@@ -89,8 +89,6 @@ function saveAll() {
   const blShowDate    = document.getElementById('chk-bl-date').checked;
   const blShowMaxPP   = document.getElementById('chk-bl-maxpp').checked;
   const blShowPPGain  = document.getElementById('chk-bl-ppgain').checked;
-  const blShowHistory = document.getElementById('chk-bl-history').checked;
-  const blHistoryCount = Math.max(1, Math.min(10, parseInt(document.getElementById('input-bl-history-count').value, 10) || 5));
   const showSongHistory        = document.getElementById('chk-song-history').checked;
   const songHistoryScroll      = document.getElementById('chk-song-history-scroll').checked;
   const songHistoryCount       = Math.max(1, Math.min(20, parseInt(document.getElementById('input-song-history-count').value, 10) || 8));
@@ -113,8 +111,8 @@ function saveAll() {
   const customFont     = document.getElementById('input-font').value.trim();
 
   Config.save({
-    wsHost, wsPort, theme, statsEnabled, showSessionStats,
-    blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain, blShowHistory, blHistoryCount,
+    wsHost, wsPort, blPlayerId, theme, statsEnabled, showSessionStats,
+    blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain,
     showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
     overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph,
     showMultiplayer, customCSS, animationStyle, customFont,
