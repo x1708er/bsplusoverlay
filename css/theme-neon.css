@@ -97,11 +97,6 @@ body {
   text-shadow: 0 0 10px rgba(0, 200, 255, 0.6);
 }
 
-#pause-indicator {
-  color: var(--neon-blue);
-  text-shadow: 0 0 40px rgba(0, 200, 255, 0.9), 0 0 80px rgba(0, 200, 255, 0.4);
-}
-
 #practice-badge {
   background: rgba(255, 165, 0, 0.15);
   color: #ffcc44;

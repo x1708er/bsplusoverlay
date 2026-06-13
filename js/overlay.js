@@ -536,6 +536,23 @@ function extractBLPlayerId(s) {
   return (m ? m[1] : t).trim();
 }
 
+// Holt die Beat-Saber-Gesamtstunden aus Steam (via /steam-Proxy, der die
+// öffentliche Steam-Community-Spielliste parst). steamId ist die SteamID64 –
+// bei Steam-Spielern identisch mit der BeatLeader-/Handshake-ID. Gibt die
+// Stunden als Zahl zurück oder null (privates Profil, Nicht-Steam-ID, Fehler).
+async function fetchSteamHours(steamId) {
+  if (!steamId || !/^\d{17}$/.test(String(steamId))) return null;
+  const base = `${window.location.protocol}//${window.location.hostname}:${window.location.port || 7273}`;
+  try {
+    const res = await fetch(`${base}/steam?steamid=${encodeURIComponent(steamId)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return typeof data.hours === 'number' ? data.hours : null;
+  } catch {
+    return null;
+  }
+}
+
 async function loadPlayerAvatar(playerId) {
   if (!playerId) return null;
   const info = await BeatLeader.fetchPlayerInfo(playerId);
@@ -554,6 +571,16 @@ async function loadPlayerAvatar(playerId) {
     if (info.pp) parts.push(`${Math.round(info.pp).toLocaleString()} pp`);
     setText('player-bl-stats', parts.join(' · '));
     setVisible('player-bl-stats', true);
+
+    // Steam-Gesamtstunden asynchron nachladen und anhängen – blockiert die
+    // Rank-/PP-Anzeige nicht, falls Steam langsam/privat ist.
+    if (Config.get('showSteamHours') !== false) {
+      fetchSteamHours(playerId).then(hours => {
+        if (hours == null) return;
+        parts.push(`${Math.round(hours).toLocaleString('de-DE')} h`);
+        setText('player-bl-stats', parts.join(' · '));
+      });
+    }
   }
   return info;
 }
@@ -893,13 +920,11 @@ BSPlusWS.onMultiplayerScore = (scores) => {
 
 BSPlusWS.onPause = () => {
   isPaused = true;
-  setVisible('pause-indicator', true);
 };
 
 BSPlusWS.onResume = () => {
   isPaused = false;
   songStartTime = Date.now() - songElapsed * 1000;
-  setVisible('pause-indicator', false);
 };
 
 // --- Accuracy Graph ---

@@ -8,6 +8,14 @@ function loadSettings() {
   document.getElementById('input-ws-host').value = Config.get('wsHost');
   document.getElementById('input-ws-port').value = Config.get('wsPort');
   document.getElementById('input-bl-player-id').value = Config.get('blPlayerId') || '';
+  document.getElementById('chk-steam-hours').checked = Config.get('showSteamHours') !== false;
+  // API-Key nie vorbefüllen (Server liefert ihn nicht aus). Placeholder zeigt nur,
+  // ob bereits ein Key gespeichert ist; leeres Feld lässt ihn unverändert.
+  const steamKeyInput = document.getElementById('input-steam-key');
+  steamKeyInput.value = '';
+  steamKeyInput.placeholder = Config.get('steamApiKeySet')
+    ? '•••••••• gespeichert (leer lassen = behalten)'
+    : 'Noch kein Key gesetzt';
   document.getElementById('chk-stats-enabled').checked  = Config.get('statsEnabled')    !== false;
   document.getElementById('chk-session-stats').checked  = Config.get('showSessionStats') !== false;
   document.getElementById('chk-bl-pp').checked    = Config.get('blShowPP')    !== false;
@@ -77,6 +85,7 @@ function saveAll() {
   const wsHost = document.getElementById('input-ws-host').value.trim() || 'localhost';
   const wsPort = parseInt(document.getElementById('input-ws-port').value.trim(), 10) || 2947;
   const blPlayerId = document.getElementById('input-bl-player-id').value.trim();
+  const showSteamHours = document.getElementById('chk-steam-hours').checked;
   const statsEnabled    = document.getElementById('chk-stats-enabled').checked;
   const showSessionStats = document.getElementById('chk-session-stats').checked;
   const selectedTile = document.querySelector('.theme-tile.selected');
@@ -110,13 +119,25 @@ function saveAll() {
   const animationStyle = selectedAnim ? selectedAnim.dataset.anim : 'slide';
   const customFont     = document.getElementById('input-font').value.trim();
 
-  Config.save({
-    wsHost, wsPort, blPlayerId, theme, statsEnabled, showSessionStats,
+  const payload = {
+    wsHost, wsPort, blPlayerId, theme, statsEnabled, showSessionStats, showSteamHours,
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain,
     showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
     overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph,
     showMultiplayer, customCSS, animationStyle, customFont,
-  }).then(() => showStatus('Einstellungen gespeichert!'));
+  };
+
+  // Steam-API-Key nur mitschicken, wenn der User etwas eingegeben hat – leeres
+  // Feld lässt den server-seitig gespeicherten Key unverändert.
+  const steamKeyInput = document.getElementById('input-steam-key');
+  const steamApiKey = steamKeyInput.value.trim();
+  if (steamApiKey) {
+    payload.steamApiKey = steamApiKey;
+    steamKeyInput.value = '';
+    steamKeyInput.placeholder = '•••••••• gespeichert (leer lassen = behalten)';
+  }
+
+  Config.save(payload).then(() => showStatus('Einstellungen gespeichert!'));
 }
 
 // --- Career stats display ---

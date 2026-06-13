@@ -20,6 +20,11 @@ PORT = 7273
 BL_API = 'https://api.beatleader.xyz'
 BL_PREFIX = '/bl/'
 IMG_PREFIX = '/img'
+STEAM_ROUTE = '/steam'
+STEAM_APPID = 620980  # Beat Saber
+STEAM_API_URL = ('https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/'
+                 '?key={key}&steamid={steamid}'
+                 '&include_appinfo=0&include_played_free_games=1&format=json')
 CONFIG_PATH = 'config.json'
 CONFIG_ROUTE = '/config'
 UPDATE_CHECK_ROUTE = '/update/check'
@@ -51,6 +56,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self._proxy_beatleader()
         elif self.path.startswith(IMG_PREFIX + '?') or self.path == IMG_PREFIX:
             self._proxy_image()
+        elif self.path == STEAM_ROUTE or self.path.startswith(STEAM_ROUTE + '?'):
+            self._proxy_steam()
         elif self.path == CONFIG_ROUTE:
             self._serve_config()
         elif self.path == UPDATE_CHECK_ROUTE:
@@ -103,11 +110,11 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(body)
 
     def _serve_config(self):
-        if os.path.exists(CONFIG_PATH):
-            with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
-                data = f.read().encode('utf-8')
-        else:
-            data = b'{}'
+        cfg = self._read_config()
+        # Den Steam-API-Key NIE an Clients ausliefern (Overlay/OBS/LAN sehen /config).
+        # Stattdessen nur ein Flag, ob ein Key gesetzt ist.
+        cfg['steamApiKeySet'] = bool((cfg.pop('steamApiKey', '') or '').strip())
+        data = json.dumps(cfg, ensure_ascii=False).encode('utf-8')
         self.send_response(200)
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(data)))
@@ -120,6 +127,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         body = self.rfile.read(length)
         try:
             data = json.loads(body)
+            # Den (ausgeblendeten) Steam-API-Key bewahren, wenn der Client keinen
+            # neuen schickt – sonst würde ein normaler Speichervorgang ihn löschen.
+            if not (data.get('steamApiKey') or '').strip():
+                data.pop('steamApiKey', None)
+                existing = self._read_config().get('steamApiKey')
+                if (existing or '').strip():
+                    data['steamApiKey'] = existing
+            data.pop('steamApiKeySet', None)  # nur ein abgeleitetes Flag, nie speichern
             with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
                 json.dump(data, f, indent=2, ensure_ascii=False)
             self.send_response(200)
@@ -164,6 +179,43 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_response(502)
             self._cors_headers()
             self.end_headers()
+
+    def _proxy_steam(self):
+        """GET /steam?steamid=<id64> → {"hours": <float|null>} Beat-Saber-Spielzeit.
+
+        Nutzt die offizielle Steam Web API (IPlayerService/GetOwnedGames) mit dem
+        server-seitig gespeicherten API-Key. Der Key verlässt den Server nie.
+        Liefert hours=null bei fehlendem Key, privatem Profil, fehlendem Spiel oder
+        Netzfehler – nie ein Fehler-Status, damit das Overlay nie kaputtgeht.
+        """
+        steamid = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query).get('steamid', [''])[0]
+        key = (self._read_config().get('steamApiKey') or '').strip()
+        if not steamid.isdigit() or not key:
+            self._json_response({'hours': None})
+            return
+        try:
+            url = STEAM_API_URL.format(key=urllib.parse.quote(key), steamid=steamid)
+            req = urllib.request.Request(url, headers={'User-Agent': 'BSPlusOverlay/1.0'})
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                payload = json.loads(resp.read())
+            games = (payload.get('response') or {}).get('games') or []
+            for g in games:
+                if g.get('appid') == STEAM_APPID:
+                    minutes = g.get('playtime_forever', 0)
+                    self._json_response({'hours': round(minutes / 60, 1)})
+                    return
+            self._json_response({'hours': None})  # Spiel nicht gefunden / Profil privat
+        except Exception:
+            self._json_response({'hours': None})
+
+    @staticmethod
+    def _read_config():
+        """Liest config.json als dict (leeres dict bei Fehler/fehlend)."""
+        try:
+            with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            return {}
 
     def _load_updater(self):
         if getattr(sys, 'frozen', False):

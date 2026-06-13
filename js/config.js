@@ -10,6 +10,7 @@ const Config = (() => {
     blShowPP: true, blShowAcc: true, blShowRank: true,
     blShowStars: true, blShowFC: true, blShowDate: false,
     blShowMaxPP: false, blShowPPGain: true,
+    showSteamHours: true,
     overlayPosition: 'bottom-left', overlayScale: 1,
     showSongCard: true, showProgress: true, showScorePanel: true, showHealthBar: true, showPBDelta: true, showAccGraph: true,
     showSongHistory: true, songHistoryCount: 8, songHistoryScroll: true, songHistoryScrollSpeed: 3000, songHistoryVisibleRows: 3,
@@ -21,10 +22,12 @@ const Config = (() => {
 
   let values = { ...DEFAULTS };
 
+  // server.py serves /config on whatever interface it bound to (0.0.0.0), so
+  // read it from the SAME origin that served this page — this honors the
+  // configured wsHost whether the overlay is opened via localhost or the LAN IP
+  // (e.g. an OBS browser source / second PC). Only bare file:// has no server.
   const { protocol, hostname, port } = window.location;
-  const isLocalServer = protocol !== 'file:' &&
-    (hostname === 'localhost' || hostname === '127.0.0.1');
-  const BASE = isLocalServer ? `http://${hostname}:${port || 7273}` : null;
+  const BASE = protocol !== 'file:' ? `${protocol}//${hostname}:${port || 7273}` : null;
 
   const ready = BASE
     ? fetch(`${BASE}/config`)

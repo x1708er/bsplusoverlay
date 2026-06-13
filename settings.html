@@ -804,6 +804,22 @@
         <label for="input-bl-player-id">Player-ID / URL</label>
         <input type="text" id="input-bl-player-id" placeholder="76561198… oder https://beatleader.com/u/…" style="flex:1;min-width:280px">
       </div>
+      <label class="toggle-label" style="margin-top:10px"><input type="checkbox" id="chk-steam-hours"><span class="toggle-switch"></span> Steam-Gesamtstunden im Banner</label>
+      <p class="section-desc" style="margin-top:6px">Zeigt die Beat-Saber-Spielzeit aus Steam neben Rank/PP. Voraussetzung: Steam-Profil „Spieldetails" öffentlich.</p>
+      <div class="inline-row" style="margin-top:10px">
+        <label for="input-steam-key">Steam API-Key</label>
+        <input type="text" id="input-steam-key" placeholder="" autocomplete="off" spellcheck="false" style="flex:1;min-width:280px">
+      </div>
+      <details class="section-desc" style="margin-top:6px">
+        <summary style="cursor:pointer">Anleitung: kostenlosen API-Key holen</summary>
+        <ol style="margin:8px 0 0 18px;padding:0;line-height:1.7">
+          <li>Öffne <a href="https://steamcommunity.com/dev/apikey" target="_blank" rel="noopener">steamcommunity.com/dev/apikey</a> (Steam-Login nötig).</li>
+          <li>Bei „Domain" etwas Beliebiges eintragen, z.&nbsp;B. <code>localhost</code>, und bestätigen.</li>
+          <li>Den angezeigten Schlüssel (32 Zeichen) kopieren und oben einfügen, dann „Speichern".</li>
+          <li>Dein Steam-Profil muss „Spieldetails: Öffentlich" haben (Profil → Privatsphäre).</li>
+        </ol>
+        <p style="margin:8px 0 0">Der Key wird nur lokal in <code>config.json</code> gespeichert (per <code>.gitignore</code> ausgeschlossen), nie an Dritte gesendet und nicht über <code>/config</code> ausgeliefert.</p>
+      </details>
     </div>
 
     <div class="card">

@@ -3,15 +3,13 @@
  * Fetches recent scores for a player and matches them against the current map.
  */
 const BeatLeader = (() => {
-  // On localhost (server.py) use the built-in proxy (/bl/...) to work around
-  // BeatLeader's missing CORS headers. Everywhere else hit the API directly.
+  // Use server.py's built-in proxy (/bl/...) on the SAME origin that served this
+  // page to work around BeatLeader's missing CORS headers. Works whether the
+  // overlay is opened via localhost or the LAN IP. Bare file:// has no proxy.
   const BASE = (() => {
     const { hostname, port, protocol } = window.location;
-    if (protocol === 'file:') return null; // no fetching from file://
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      return `http://${hostname}:${port || 7273}/bl`;
-    }
-    return 'https://api.beatleader.xyz';
+    if (protocol === 'file:') return null;
+    return `${protocol}//${hostname}:${port || 7273}/bl`;
   })();
 
   let cachedPlayerId = null;
