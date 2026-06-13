@@ -144,3 +144,51 @@ body {
 #score-panel #accuracy.acc-ok   { color: #ffcc00; text-shadow: 0 0 10px rgba(255,204,0,0.6); }
 #score-panel #accuracy.acc-bad  { color: #ff4444; text-shadow: 0 0 10px rgba(255,68,68,0.6); }
 .streak-epic { text-shadow: 0 0 12px rgba(255,80,0,0.8); }
+
+/* ════════════════════════════════════════════════════════════════════
+   Animated glow: a breathing base glow on each panel (::after). Lives on
+   a pseudo-element so the panels' own entry animations (panelIn / fadeIn)
+   stay untouched.
+   ════════════════════════════════════════════════════════════════════ */
+
+/* per-panel glow colour (matches each panel's accent) — "r, g, b" */
+#song-card, #player-banner                                  { --neon-glow: 0, 200, 255; }
+#score-panel, #career-stats, #session-stats-panel           { --neon-glow: 255, 45, 120; }
+#beatleader-panel, #leaderboard-panel, #multiplayer-panel   { --neon-glow: 180, 74, 255; }
+#result-screen                                              { --neon-glow: 0, 200, 255; }
+
+/* positioning context for the pseudo-element glows */
+#song-card, #score-panel, #beatleader-panel,
+#leaderboard-panel, #multiplayer-panel,
+#player-banner, #career-stats, #session-stats-panel,
+#result-screen {
+  position: relative;
+}
+
+/* ── ::after — breathing base glow ── */
+#song-card::after, #score-panel::after, #beatleader-panel::after,
+#leaderboard-panel::after, #multiplayer-panel::after,
+#player-banner::after, #career-stats::after, #session-stats-panel::after,
+#result-screen::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: neon-breathe 2.6s ease-in-out infinite;
+}
+@keyframes neon-breathe {
+  0%, 100% { box-shadow: 0 0 10px rgba(var(--neon-glow), 0.18); }
+  50%      { box-shadow: 0 0 28px rgba(var(--neon-glow), 0.55),
+                         0 0 48px rgba(var(--neon-glow), 0.22); }
+}
+
+/* honour reduced-motion: freeze the breathing glow */
+@media (prefers-reduced-motion: reduce) {
+  #song-card::after, #score-panel::after, #beatleader-panel::after,
+  #leaderboard-panel::after, #multiplayer-panel::after,
+  #player-banner::after, #career-stats::after, #session-stats-panel::after,
+  #result-screen::after {
+    animation: none;
+  }
+}

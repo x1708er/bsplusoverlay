@@ -652,9 +652,135 @@
       opacity: 1;
       text-shadow: 0 0 10px rgba(0,212,255,0.6);
     }
+
+    /* ════════════════════════════════════════════════════════════════
+       Beat-Saber-Animationen
+       ════════════════════════════════════════════════════════════════ */
+
+    /* ── Ambient background layer ── */
+    #bsbg {
+      position: fixed; inset: 0;
+      z-index: 0; pointer-events: none; overflow: hidden;
+    }
+    /* floating note cubes */
+    .bs-cubes { position: absolute; inset: 0; }
+    .bs-cube {
+      position: absolute; bottom: -44px;
+      width: 28px; height: 28px; border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Rajdhani', sans-serif; font-size: 15px; font-weight: 700;
+      animation: bs-rise linear forwards;
+    }
+    .bs-cube.c {
+      background: linear-gradient(145deg, rgba(0,212,255,0.32), rgba(0,212,255,0.05));
+      border: 1px solid rgba(0,212,255,0.6);
+      box-shadow: 0 0 13px rgba(0,212,255,0.45);
+      color: #9fefff;
+    }
+    .bs-cube.p {
+      background: linear-gradient(145deg, rgba(255,45,120,0.32), rgba(255,45,120,0.05));
+      border: 1px solid rgba(255,45,120,0.6);
+      box-shadow: 0 0 13px rgba(255,45,120,0.45);
+      color: #ffb0cd;
+    }
+    @keyframes bs-rise {
+      0%   { transform: translateY(0)       rotate(0deg);  opacity: 0; }
+      10%  { opacity: 0.85; }
+      90%  { opacity: 0.85; }
+      100% { transform: translateY(-105vh)  rotate(40deg); opacity: 0; }
+    }
+
+    /* keep all page content above the ambient layer */
+    #cors-warning, .header, .tab-nav, .tab-pane, .save-row, #link-overlay {
+      position: relative; z-index: 1;
+    }
+
+    /* ── Saber-slash on tab switch ── */
+    .tab-nav { overflow: hidden; }
+    .tab-slash {
+      position: absolute; top: -30%; left: 0;
+      width: 46px; height: 160%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.95), rgba(0,212,255,0.55), transparent);
+      filter: blur(1px);
+      transform: rotate(18deg) translateX(-140px);
+      opacity: 0; pointer-events: none; z-index: 2;
+    }
+    .tab-nav.slash .tab-slash { animation: tab-slash 0.5s ease-in-out; }
+    @keyframes tab-slash {
+      0%   { transform: rotate(18deg) translateX(-140px); opacity: 0; }
+      18%  { opacity: 1; }
+      100% { transform: rotate(18deg) translateX(660px);  opacity: 0; }
+    }
+
+    /* ── Card ignite on hover ── */
+    .card::after {
+      content: '';
+      position: absolute; top: 0; bottom: 0; left: -60%;
+      width: 45%;
+      background: linear-gradient(90deg, transparent, rgba(0,212,255,0.14), transparent);
+      transform: skewX(-18deg);
+      opacity: 0; pointer-events: none;
+    }
+    .card:hover::after { animation: card-sweep 0.8s ease-out; }
+    .card:hover::before { opacity: 0.8; box-shadow: 0 0 12px rgba(0,212,255,0.5); }
+    @keyframes card-sweep {
+      0%   { left: -60%; opacity: 0; }
+      30%  { opacity: 1; }
+      100% { left: 120%; opacity: 0; }
+    }
+
+    /* ── Energy pulse on save ── */
+    #btn-save { position: relative; }
+    #btn-save::after {
+      content: '';
+      position: absolute; inset: 0;
+      border-radius: var(--radius-sm);
+      border: 2px solid var(--cyan);
+      opacity: 0; pointer-events: none;
+    }
+    #btn-save.pulse::after { animation: save-pulse 0.6s ease-out; }
+    @keyframes save-pulse {
+      0%   { transform: scale(1);   opacity: 0.85; }
+      100% { transform: scale(1.6); opacity: 0; }
+    }
+
+    /* ── Logo saber: hum + swing-in ── */
+    .logo-mark { animation: logo-hum 2.8s ease-in-out infinite; }
+    @keyframes logo-hum {
+      0%, 100% { filter: brightness(1); }
+      50%      { filter: brightness(1.45); }
+    }
+    .logo-mark::before { animation: logo-swing-l 0.9s ease-out; }
+    .logo-mark::after  { animation: logo-swing-r 0.9s ease-out; }
+    @keyframes logo-swing-l {
+      0%   { transform: translate(-50%, -50%) rotate(-90deg); opacity: 0; }
+      60%  { transform: translate(-50%, -50%) rotate(-30deg); }
+      100% { transform: translate(-50%, -50%) rotate(-38deg); opacity: 1; }
+    }
+    @keyframes logo-swing-r {
+      0%   { transform: translate(-50%, -50%) rotate(90deg);  opacity: 0; }
+      60%  { transform: translate(-50%, -50%) rotate(30deg);  }
+      100% { transform: translate(-50%, -50%) rotate(38deg);  opacity: 1; }
+    }
+
+    /* ── Respect reduced-motion preference ── */
+    @media (prefers-reduced-motion: reduce) {
+      .bs-cube  { display: none; }
+      .tab-nav.slash .tab-slash { animation: none; }
+      .card:hover::after { animation: none; }
+      #btn-save.pulse::after { animation: none; }
+      .logo-mark,
+      .logo-mark::before,
+      .logo-mark::after { animation: none; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- Beat-Saber ambient background -->
+  <div id="bsbg" aria-hidden="true">
+    <div class="bs-cubes" id="bs-cubes"></div>
+  </div>
 
   <div id="cors-warning">
     <strong>Seite läuft über file:// – BeatLeader-API nicht verfügbar</strong><br>
@@ -679,6 +805,7 @@
     <button class="tab-btn" data-tab="beatleader">BeatLeader</button>
     <button class="tab-btn" data-tab="verlauf">Verlauf</button>
     <button class="tab-btn" data-tab="erweitert">Erweitert</button>
+    <span class="tab-slash" aria-hidden="true"></span>
   </nav>
 
   <!-- ═══ Tab: Aussehen ═══ -->
@@ -948,6 +1075,42 @@
       document.getElementById('cors-warning').style.display = 'block';
     }
 
+    // ── Beat-Saber animations ────────────────────────────────────────────────
+    const reduceMotion = window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Floating note cubes in the ambient background
+    (function spawnCubes() {
+      if (reduceMotion) return;
+      const wrap = document.getElementById('bs-cubes');
+      if (!wrap) return;
+      const arrows = ['↑', '↓', '←', '→', '↗', '↘'];
+      const MAX = 8;
+      function spawn() {
+        if (wrap.childElementCount >= MAX) return;
+        const cube = document.createElement('div');
+        cube.className = 'bs-cube ' + (Math.random() < 0.5 ? 'c' : 'p');
+        cube.textContent = arrows[Math.floor(Math.random() * arrows.length)];
+        cube.style.left = (4 + Math.random() * 90) + '%';
+        const dur = 7 + Math.random() * 4;
+        cube.style.animationDuration = dur + 's';
+        wrap.appendChild(cube);
+        setTimeout(() => cube.remove(), dur * 1000);
+      }
+      for (let i = 0; i < 5; i++) setTimeout(spawn, i * 900);
+      setInterval(spawn, 1100);
+    })();
+
+    // Saber-slash sweep over the tab bar (restart animation on each call)
+    function triggerTabSlash() {
+      if (reduceMotion) return;
+      const nav = document.querySelector('.tab-nav');
+      if (!nav) return;
+      nav.classList.remove('slash');
+      void nav.offsetWidth; // force reflow so the animation restarts
+      nav.classList.add('slash');
+    }
+
     // Tab switching
     const tabBtns  = document.querySelectorAll('.tab-btn');
     const tabPanes = document.querySelectorAll('.tab-pane');
@@ -958,7 +1121,22 @@
       try { sessionStorage.setItem('settingsTab', name); } catch(_) {}
     }
 
-    tabBtns.forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+    tabBtns.forEach(btn => btn.addEventListener('click', () => {
+      activateTab(btn.dataset.tab);
+      triggerTabSlash();
+    }));
+
+    // Energy pulse on the save button (purely visual, additive to settings.js)
+    (function () {
+      const btnSave = document.getElementById('btn-save');
+      if (!btnSave) return;
+      btnSave.addEventListener('click', () => {
+        if (reduceMotion) return;
+        btnSave.classList.remove('pulse');
+        void btnSave.offsetWidth; // force reflow so the animation restarts
+        btnSave.classList.add('pulse');
+      });
+    })();
 
     try {
       const saved = sessionStorage.getItem('settingsTab');
