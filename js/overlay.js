@@ -239,6 +239,41 @@ function showResultScreen(mapInfo, scoreData, blScore) {
   return true;
 }
 
+// --- BSR map code ---
+const bsrKeyCache = {}; // { [hash]: key | null } — BeatSaver lookups by map hash
+
+function formatBsrKey(key) {
+  return Config.get('bsrFormat') === 'plain' ? key : `!bsr ${key}`;
+}
+
+async function updateBsrBadge(info) {
+  const badge = el('bsr-badge');
+  if (!badge) return;
+  badge.classList.add('hidden');
+  if (Config.get('showBSR') === false) return;
+
+  let key = (info.BSRKey || '').trim();
+  if (!key) {
+    // BSPlus often sends an empty BSRKey — resolve it via BeatSaver using the
+    // map hash from the level id (custom_level_<HASH>).
+    const m = /^custom_level_([0-9A-Fa-f]{40})/.exec(info.level_id || '');
+    if (!m) return; // OST/DLC map, has no BSR key
+    const hash = m[1].toLowerCase();
+    if (!(hash in bsrKeyCache)) {
+      try {
+        const res = await fetch(`https://api.beatsaver.com/maps/hash/${hash}`);
+        bsrKeyCache[hash] = res.ok ? (await res.json()).id || null : null;
+      } catch {
+        return; // network error: leave uncached so a later map retries
+      }
+    }
+    key = bsrKeyCache[hash];
+    if (!key || currentMapInfo !== info) return; // no result or map changed meanwhile
+  }
+  badge.textContent = formatBsrKey(key);
+  badge.classList.remove('hidden');
+}
+
 // --- Song timer (client-side fallback) ---
 function startSongTimer(duration, startFrom = 0) {
   stopSongTimer();
@@ -691,6 +726,9 @@ BSPlusWS.onMapInfo = async (info) => {
     diffEl.textContent = diffLabel(diff);
     diffEl.style.backgroundColor = DIFF_COLORS[diff.toLowerCase()] || '#666';
   }
+
+  // BSR map code
+  updateBsrBadge(info);
 
   // Duration: BSPlus sends milliseconds → convert to seconds
   const duration = (info.duration || 0) / 1000;

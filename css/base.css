@@ -226,6 +226,16 @@ body.pos-top-right #overlay-menu {
   opacity: 0.7;
 }
 
+#bsr-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
 #practice-badge {
   font-size: 0.62rem;
   font-weight: 700;

@@ -43,6 +43,8 @@ function loadSettings() {
   document.getElementById('chk-show-pbdelta').checked       = Config.get('showPBDelta')      !== false;
   document.getElementById('chk-show-accgraph').checked      = Config.get('showAccGraph')     !== false;
   document.getElementById('chk-show-multiplayer').checked   = Config.get('showMultiplayer')  !== false;
+  document.getElementById('chk-show-bsr').checked            = Config.get('showBSR')          !== false;
+  document.getElementById('select-bsr-format').value         = Config.get('bsrFormat') === 'plain' ? 'plain' : 'bsr';
   document.getElementById('input-custom-css').value    = Config.get('customCSS')      || '';
   document.getElementById('input-font').value          = Config.get('customFont')     || '';
   selectTheme(Config.get('theme'), false);
@@ -114,6 +116,8 @@ function saveAll() {
   const showPBDelta      = document.getElementById('chk-show-pbdelta').checked;
   const showAccGraph     = document.getElementById('chk-show-accgraph').checked;
   const showMultiplayer  = document.getElementById('chk-show-multiplayer').checked;
+  const showBSR          = document.getElementById('chk-show-bsr').checked;
+  const bsrFormat        = document.getElementById('select-bsr-format').value;
   const customCSS      = document.getElementById('input-custom-css').value;
   const selectedAnim   = document.querySelector('.anim-tile.selected');
   const animationStyle = selectedAnim ? selectedAnim.dataset.anim : 'slide';
@@ -124,7 +128,7 @@ function saveAll() {
     blShowPP, blShowAcc, blShowStars, blShowRank, blShowFC, blShowDate, blShowMaxPP, blShowPPGain,
     showSongHistory, songHistoryScroll, songHistoryCount, songHistoryVisibleRows, songHistoryScrollSpeed,
     overlayPosition, overlayScale, showSongCard, showProgress, showScorePanel, showHealthBar, showPBDelta, showAccGraph,
-    showMultiplayer, customCSS, animationStyle, customFont,
+    showMultiplayer, showBSR, bsrFormat, customCSS, animationStyle, customFont,
   };
 
   // Steam-API-Key nur mitschicken, wenn der User etwas eingegeben hat – leeres

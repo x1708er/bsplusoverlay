@@ -222,7 +222,8 @@
 
     /* ── Inputs ── */
     input[type="text"],
-    input[type="number"] {
+    input[type="number"],
+    select {
       background: var(--surface2);
       border: 1px solid rgba(0,212,255,0.15);
       border-radius: var(--radius-sm);
@@ -236,7 +237,8 @@
       width: 100%;
     }
     input[type="text"]:focus,
-    input[type="number"]:focus {
+    input[type="number"]:focus,
+    select:focus {
       border-color: rgba(0,212,255,0.55);
       box-shadow: 0 0 0 3px rgba(0,212,255,0.1), 0 0 12px rgba(0,212,255,0.08);
     }
@@ -879,6 +881,14 @@
         <label class="toggle-label"><input type="checkbox" id="chk-show-pbdelta"><span class="toggle-switch"></span> PB-Delta</label>
         <label class="toggle-label"><input type="checkbox" id="chk-show-accgraph"><span class="toggle-switch"></span> Accuracy-Graph</label>
         <label class="toggle-label"><input type="checkbox" id="chk-show-multiplayer"><span class="toggle-switch"></span> Multiplayer-Board</label>
+        <label class="toggle-label"><input type="checkbox" id="chk-show-bsr"><span class="toggle-switch"></span> Mapcode (BSR)</label>
+      </div>
+      <div class="inline-row" style="margin-top:12px">
+        <label for="select-bsr-format">Mapcode-Format</label>
+        <select id="select-bsr-format" style="width:auto">
+          <option value="bsr">!bsr 25f9</option>
+          <option value="plain">25f9</option>
+        </select>
       </div>
     </div>
 
