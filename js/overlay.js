@@ -179,14 +179,15 @@ function showResultScreen(mapInfo, scoreData, blScore) {
   if (Config.get('showResultScreen') === false) return false;
   if (!scoreData || !mapInfo) return false;
 
-  const isFail = scoreData.health <= 0.001;
-  const isFC   = scoreData.missCount === 0 && !isFail;
+  const isFail  = scoreData.health <= 0.001;
+  const aborted = isPaused && !isFail; // quit to menu happens from the pause screen
+  const isFC    = scoreData.missCount === 0 && !isFail && !aborted;
 
   const verdictEl = el('result-verdict');
   if (verdictEl) {
-    verdictEl.textContent = isFail ? 'FAIL' : 'PASS';
-    verdictEl.classList.toggle('result-pass', !isFail);
-    verdictEl.classList.toggle('result-fail',  isFail);
+    verdictEl.textContent = isFail ? 'FAIL' : aborted ? 'QUIT' : 'PASS';
+    verdictEl.classList.toggle('result-pass', !isFail && !aborted);
+    verdictEl.classList.toggle('result-fail',  isFail || aborted);
   }
 
   const coverEl = el('result-cover');
@@ -373,11 +374,14 @@ function captureAndAddToHistory() {
     accuracy:   lastScoreData.accuracy,
     missCount:  lastScoreData.missCount,
     health:     lastScoreData.health,
+    // Quitting to the menu always goes through the pause screen, so leaving a
+    // song while still paused means it was aborted, not finished.
+    aborted:    isPaused && lastScoreData.health > 0.001,
     ts:         Date.now(),
   });
   sessionMapsPlayed++;
   const isFail = lastScoreData.health <= 0.001;
-  if (lastScoreData.missCount === 0 && !isFail) sessionFCs++;
+  if (lastScoreData.missCount === 0 && !isFail && !songHistory[0].aborted) sessionFCs++;
   updateSessionStats();
   while (songHistory.length > maxCount) songHistory.pop();
   songWasPlayed = false;
@@ -434,9 +438,9 @@ function renderSongHistory() {
   list.innerHTML = songHistory.map(s => {
     const accStr  = s.accuracy != null ? `${(s.accuracy * 100).toFixed(2)}%` : '—';
     const isFail  = s.health <= 0.001;
-    const isFC    = s.missCount === 0 && !isFail;
-    const missStr = isFail ? 'FAIL' : (isFC ? 'FC' : `${s.missCount} miss`);
-    const missClass = isFC ? ' sh-fc' : (isFail ? ' sh-fail' : '');
+    const isFC    = s.missCount === 0 && !isFail && !s.aborted;
+    const missStr = isFail ? 'FAIL' : s.aborted ? 'QUIT' : (isFC ? 'FC' : `${s.missCount} miss`);
+    const missClass = isFC ? ' sh-fc' : (isFail || s.aborted ? ' sh-fail' : '');
     const diffColor = DIFF_COLORS[s.difficulty.toLowerCase()] || '#666';
     const coverSrc  = s.coverRaw ? `data:image/png;base64,${s.coverRaw}` : '';
     return `
