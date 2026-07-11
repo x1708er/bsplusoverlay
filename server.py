@@ -46,7 +46,7 @@ DEV_MODE = os.path.exists(os.path.join(BASE_DIR, '.noupdate'))
 # LOG_KEEP Dateien behalten. Client-Logs (Overlay/Settings) kommen per
 # POST /log dazu, Server-Ereignisse werden direkt geschrieben.
 LOG_DIR = os.path.join(BASE_DIR, 'logs')
-LOG_KEEP = 10
+LOG_KEEP = 50
 _log_lock = threading.Lock()
 _log_path = None
 _last_msg = None    # (source, level, msg) der zuletzt geschriebenen Zeile
