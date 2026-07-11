@@ -12,9 +12,12 @@ import urllib.request
 import urllib.error
 import urllib.parse
 import importlib.util
+import datetime
+import glob
 import json
 import os
 import sys
+import threading
 
 PORT = 7273
 BL_API = 'https://api.beatleader.xyz'
@@ -27,6 +30,7 @@ STEAM_API_URL = ('https://api.steampowered.com/IPlayerService/GetOwnedGames/v1/'
                  '&include_appinfo=0&include_played_free_games=1&format=json')
 CONFIG_PATH = 'config.json'
 CONFIG_ROUTE = '/config'
+LOG_ROUTE = '/log'
 UPDATE_CHECK_ROUTE = '/update/check'
 UPDATE_APPLY_ROUTE = '/update/apply'
 
@@ -36,6 +40,58 @@ UPDATE_APPLY_ROUTE = '/update/apply'
 BASE_DIR = (os.path.dirname(sys.executable) if getattr(sys, 'frozen', False)
             else os.path.dirname(os.path.abspath(__file__)))
 DEV_MODE = os.path.exists(os.path.join(BASE_DIR, '.noupdate'))
+
+# --- Logging -----------------------------------------------------------------
+# Eine Logdatei pro Server-Start unter logs/; es werden nur die letzten
+# LOG_KEEP Dateien behalten. Client-Logs (Overlay/Settings) kommen per
+# POST /log dazu, Server-Ereignisse werden direkt geschrieben.
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+LOG_KEEP = 10
+_log_lock = threading.Lock()
+_log_path = None
+_last_msg = None    # (source, level, msg) der zuletzt geschriebenen Zeile
+_repeat_count = 0   # wie oft _last_msg seitdem unterdrückt wurde
+
+
+def _init_logging():
+    global _log_path
+    os.makedirs(LOG_DIR, exist_ok=True)
+    old = sorted(glob.glob(os.path.join(LOG_DIR, 'overlay-*.log')))
+    for path in old[:max(0, len(old) - (LOG_KEEP - 1))]:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+    stamp = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
+    _log_path = os.path.join(LOG_DIR, f'overlay-{stamp}.log')
+    log_line('server', 'info', f'--- BSPlus Overlay gestartet (dev={DEV_MODE}) ---')
+
+
+def log_line(source, level, msg):
+    """Eine Zeile in die aktuelle Logdatei schreiben (thread-sicher).
+
+    Direkt aufeinanderfolgende identische Zeilen werden nicht einzeln
+    geschrieben, sondern beim nächsten abweichenden Eintrag zu einer
+    Sammelzeile "(letzte Zeile Nx wiederholt)" zusammengefasst.
+    """
+    global _last_msg, _repeat_count
+    if not _log_path:
+        return
+    ts = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    try:
+        with _log_lock:
+            key = (source, level, msg)
+            if key == _last_msg:
+                _repeat_count += 1
+                return
+            with open(_log_path, 'a', encoding='utf-8') as f:
+                if _repeat_count:
+                    f.write(f'{ts} [{_last_msg[0]}] [{_last_msg[1]}] (letzte Zeile {_repeat_count}x wiederholt)\n')
+                f.write(f'{ts} [{source}] [{level}] {msg}\n')
+            _last_msg = key
+            _repeat_count = 0
+    except OSError:
+        pass
 
 
 class Handler(http.server.SimpleHTTPRequestHandler):
@@ -68,6 +124,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
     def do_POST(self):
         if self.path == CONFIG_ROUTE:
             self._save_config()
+        elif self.path == LOG_ROUTE:
+            self._receive_log()
         elif self.path == UPDATE_APPLY_ROUTE:
             self._update_apply()
         else:
@@ -94,6 +152,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(data)
 
         except urllib.error.HTTPError as e:
+            log_line('server', 'warn', f'BeatLeader-Proxy {bl_path}: HTTP {e.code}')
             body = json.dumps({'error': f'BeatLeader returned {e.code}'}).encode()
             self.send_response(e.code)
             self.send_header('Content-Type', 'application/json')
@@ -102,6 +161,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(body)
 
         except Exception as e:
+            log_line('server', 'error', f'BeatLeader-Proxy {bl_path}: {e}')
             body = json.dumps({'error': str(e)}).encode()
             self.send_response(502)
             self.send_header('Content-Type', 'application/json')
@@ -150,6 +210,26 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(err)
 
+    def _receive_log(self):
+        """POST /log ← {entries: [{level, msg}]} vom Overlay/den Settings.
+
+        Der Browser-Zeitstempel wird ignoriert; die Zeile bekommt die
+        Serverzeit, damit Client- und Server-Einträge chronologisch passen.
+        """
+        length = int(self.headers.get('Content-Length', 0))
+        body = self.rfile.read(length)
+        try:
+            payload = json.loads(body)
+            entries = payload.get('entries') or []
+            page = str(payload.get('page') or 'client')[:24]
+            for e in entries[:200]:
+                level = str(e.get('level', 'info'))[:8]
+                msg = str(e.get('msg', ''))[:2000]
+                log_line(page, level, msg)
+        except Exception:
+            pass  # kaputte Log-Payload darf nie einen Fehler auslösen
+        self._json_response({})
+
     def _proxy_image(self):
         """GET /img?url=<encoded> → fetches any image URL and returns it from localhost."""
         qs = urllib.parse.urlparse(self.path).query
@@ -176,6 +256,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(data)
 
         except Exception as e:
+            log_line('server', 'warn', f'Bild-Proxy {url}: {e}')
             self.send_response(502)
             self._cors_headers()
             self.end_headers()
@@ -205,7 +286,8 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     self._json_response({'hours': round(minutes / 60, 1)})
                     return
             self._json_response({'hours': None})  # Spiel nicht gefunden / Profil privat
-        except Exception:
+        except Exception as e:
+            log_line('server', 'warn', f'Steam-Proxy steamid={steamid}: {e}')
             self._json_response({'hours': None})
 
     @staticmethod
@@ -259,11 +341,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # Nur Proxy- und Config-Anfragen loggen, keine statischen Assets
         if self.path.startswith(BL_PREFIX) or self.path == CONFIG_ROUTE or (args and str(args[1]) >= '400'):
             super().log_message(fmt, *args)
+            log_line('server', 'info', f'{self.address_string()} {fmt % args}')
 
 
 if __name__ == '__main__':
     if not getattr(sys, 'frozen', False):
         os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
+    _init_logging()
 
     # ThreadingHTTPServer ab Python 3.7
     try:

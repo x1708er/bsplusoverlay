@@ -21,3 +21,6 @@ docs/superpowers/
 .idea/
 *.swp
 *.swo
+
+# Logs
+logs/

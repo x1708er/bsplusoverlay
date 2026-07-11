@@ -25,6 +25,7 @@ const BSPlusWS = (() => {
     try {
       ws = new WebSocket(url);
     } catch (e) {
+      console.warn('[BSPlus] WebSocket-Verbindung zu', url, 'fehlgeschlagen:', e);
       scheduleReconnect();
       return;
     }

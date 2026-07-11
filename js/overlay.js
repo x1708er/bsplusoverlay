@@ -630,14 +630,19 @@ BSPlusWS.onHandshake = async ({ playerName }) => {
   // settings. The config is fetched asynchronously, so wait for it first.
   await Config.ready;
   const effectiveId = extractBLPlayerId(Config.get('blPlayerId'));
+  console.info(`[Handshake] playerName="${playerName || ''}", konfigurierte BL-ID="${effectiveId}"`);
+  if (!effectiveId) console.warn('[Handshake] Keine BeatLeader-ID in den Settings konfiguriert');
   if (effectiveId) BeatLeader.setPlayerId(effectiveId);
   const info = await loadPlayerAvatar(effectiveId);
+  if (effectiveId && !info) console.warn(`[Handshake] BeatLeader-Profil für ID "${effectiveId}" konnte nicht geladen werden`);
   // BeatLeader name takes priority over the Steam name from the handshake.
   setText('player-name', info?.name || playerName || '');
+  console.info(`[Handshake] Angezeigter Name: "${info?.name || playerName || ''}" (Quelle: ${info?.name ? 'BeatLeader' : playerName ? 'BSPlus/Steam' : 'keine'})`);
 };
 
 BSPlusWS.onGameState = async ({ state }) => {
   // state: "Menu" | "Playing"
+  console.info(`[GameState] ${state}`);
   const playing = state === 'Playing';
   if (playing) {
     el('overlay-playing')?.classList.remove('leaving');

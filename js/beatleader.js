@@ -33,12 +33,16 @@ const BeatLeader = (() => {
 
     try {
       const res = await fetch(`${BASE}/player/${encodeURIComponent(playerId)}`);
-      if (!res.ok) return null;
+      if (!res.ok) {
+        console.warn(`[BL] fetchPlayerInfo ${playerId}: HTTP ${res.status}`);
+        return null;
+      }
       const data = await res.json();
       cachedPlayerId = playerId;
       cachedPlayerInfo = data;
       return data;
-    } catch {
+    } catch (e) {
+      console.warn(`[BL] fetchPlayerInfo ${playerId} fehlgeschlagen:`, e);
       return null;
     }
   }
