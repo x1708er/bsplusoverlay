@@ -624,14 +624,16 @@ async function loadPlayerAvatar(playerId) {
   return info;
 }
 
-BSPlusWS.onHandshake = async ({ playerName, playerId }) => {
-  // BSPlus sometimes hands us null for both fields (e.g. Steam auth race).
-  // Fall back to the manual override from settings so the menu overlay still
-  // shows the player's avatar/rank/PP.
-  const effectiveId = playerId || extractBLPlayerId(Config.get('blPlayerId'));
+BSPlusWS.onHandshake = async ({ playerName }) => {
+  // The player id from the BSPlus handshake is unreliable (Steam auth race,
+  // sometimes null) — ignore it entirely and always use the id configured in
+  // settings. The config is fetched asynchronously, so wait for it first.
+  await Config.ready;
+  const effectiveId = extractBLPlayerId(Config.get('blPlayerId'));
   if (effectiveId) BeatLeader.setPlayerId(effectiveId);
   const info = await loadPlayerAvatar(effectiveId);
-  setText('player-name', playerName || info?.name || '');
+  // BeatLeader name takes priority over the Steam name from the handshake.
+  setText('player-name', info?.name || playerName || '');
 };
 
 BSPlusWS.onGameState = async ({ state }) => {
